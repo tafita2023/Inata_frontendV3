@@ -16,7 +16,7 @@ const Login = ({ setCurrentUser }) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
+  const backendURL = import.meta.env.VITE_API_BASE_URL_DEPLOY;
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -42,18 +42,21 @@ const Login = ({ setCurrentUser }) => {
       localStorage.setItem("authToken", token);
   
       // 🔑 Récupérer l'utilisateur connecté
-      const me = await AxiosInstance.post("/api/utilisateur-connecte/", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-  
+      const me = await AxiosInstance.post(
+        "/api/utilisateur-connecte/",
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+        
       console.log("👤 Utilisateur connecté:", me.data);
   
       // Préparer la photo avec URL complète
       let photoUrl = me.data.photo || '';
-      if (photoUrl && !photoUrl.startsWith('http')) {
-        photoUrl = `http://127.0.0.1:8000${photoUrl}`;
-      }
-  
+      if (photoUrl && !photoUrl.startsWith("http")) {
+        photoUrl = `${backendURL}${photoUrl}`;
+      }  
       // Mettre à jour le state global
       setCurrentUser({ ...me.data, photo: photoUrl });
   
@@ -95,7 +98,7 @@ const Login = ({ setCurrentUser }) => {
 
   return (
     <div className="min-h-screen bg-center bg-no-repeat flex items-center justify-center" style={{ 
-      backgroundImage: "url(${backgroundImg})", 
+      backgroundImage: `url(${backgroundImg})`, 
       backgroundSize: "cover",
       backgroundPosition: "center"
     }}>
