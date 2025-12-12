@@ -89,28 +89,31 @@ function App() {
     const fetchCurrentUser = async () => {
       try {
         let token = localStorage.getItem("authToken");
-        console.log("Token from storage:", token);
-
         if (!token) {
           setLoadingUser(false);
           return;
         }
-
+  
         const decoded = decodeToken(token);
         if (decoded?.exp && decoded.exp < Date.now() / 1000) {
-          console.warn("Token expiré, tentative de refresh...");
           token = await refreshToken();
           if (!token) {
             setLoadingUser(false);
             return;
           }
         }
-
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        const response = await AxiosInstance.post("/api/utilisateur-connecte/", config);
-        console.log("Utilisateur connecté:", response.data);
-
-        setCurrentUser(response.data);
+  
+        const response = await AxiosInstance.get("/api/utilisateur-connecte/", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        // Préparer la photo
+        let photoUrl = response.data.photo || '';
+        if (photoUrl && !photoUrl.startsWith('http')) {
+          photoUrl = `${import.meta.env.VITE_API_BASE_URL_DEPLOY}${photoUrl}`;
+        }
+  
+        setCurrentUser({ ...response.data, photo: photoUrl });
       } catch (error) {
         console.error("Erreur fetch user:", error.response?.data || error.message);
         localStorage.removeItem("authToken");
@@ -119,10 +122,10 @@ function App() {
         setLoadingUser(false);
       }
     };
-
+  
     fetchCurrentUser();
   }, []);
-
+  
   return (
     <>
       <InactivityHandler />
