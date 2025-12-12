@@ -1,9 +1,9 @@
 import React from 'react';
-import Logo from '../../images/InATA2.png';
-import Oracle from '../../images/oracle.png';
-import Vmware from '../../images/vmware.png';
-import Cisco from '../../images/cisco.png';
-import Pearson from '../../images/pearson.png';
+import Logo from '../images/InATA2.png';
+import Oracle from '../images/oracle.png';
+import Vmware from '../images/vmware.png';
+import Cisco from '../images/cisco.png';
+import Pearson from '../images/pearson.png';
 
 const Footer = () => {
   return (

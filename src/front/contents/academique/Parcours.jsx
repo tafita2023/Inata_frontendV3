@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import Logo from '../../../images/InATA2.png';
-import Code from '../../../images/code.jpg';
-import Multi from '../../../images/multimedia.jpg';
-import Program from '../../../images/program.jpg';
-import Cloud from '../../../images/cloud.jpg';
+import Logo from './../images/InATA2.png';
+import Code from './../images/code.jpg';
+import Multi from './../images/multimedia.jpg';
+import Program from './../images/program.jpg';
+import Cloud from './../images/cloud.jpg';
 
 const Parcours = () => {
   // Options disponibles
