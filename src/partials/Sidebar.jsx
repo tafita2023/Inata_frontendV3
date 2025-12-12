@@ -29,7 +29,7 @@ function Sidebar({
     const fetchCurrentUser = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await AxiosInstance.get("/utilisateur-connecte/", {
+        const response = await AxiosInstance.get("/api/utilisateur-connecte/", {
           
           headers: { Authorization: `Bearer ${token}` },
         });

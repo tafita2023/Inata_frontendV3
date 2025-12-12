@@ -6,6 +6,9 @@ import Header from '../../partials/Header';
 import Banner from '../../partials/Banner';
 import Footer from '../../partials/Footer';
 
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
+
 function Absence() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +43,7 @@ function Absence() {
 
   const fetchProfs = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/admin/professeurs/', {
+      const response = await AxiosInstance.get('/api/admin/professeurs/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProfs(response.data);
@@ -52,8 +55,8 @@ function Absence() {
   const fetchEtudiants = async (classeId) => {
     if (!classeId) return setEtudiants([]);
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/professeur/classes/${classeId}/etudiants/`,
+      const response = await AxiosInstance.get(
+        `/api/professeur/classes/${classeId}/etudiants/`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setEtudiants(response.data);
@@ -64,7 +67,7 @@ function Absence() {
 
   const fetchAbsences = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/absences/', {
+      const response = await AxiosInstance.get('api/absences/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAbsences(response.data);
@@ -94,7 +97,7 @@ function Absence() {
           ? { personne: selectedEtudiant }
           : { personne: selectedProf };
 
-      await axios.post('http://127.0.0.1:8000/api/absences/', data, {
+      await AxiosInstance.post('/api/absences/', data, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
