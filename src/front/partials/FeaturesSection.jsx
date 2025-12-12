@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Etudiant from './images/etudiant.jpg'
-import Fond from './images/fond.jpg'
+import Etudiant from '../../images/etudiant.jpg'
+import Fond from '../../images/fond.jpg'
 
 const FeaturesSection = () => {
   const [flippedCard, setFlippedCard] = useState(null);
