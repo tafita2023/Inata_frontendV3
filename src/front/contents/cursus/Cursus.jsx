@@ -1,5 +1,5 @@
 import React from 'react';
-import Flow from './../images/cursus.png';
+import Flow from '../../../images/cursus.png';
 
 function Cursus() {
   return (
