@@ -42,7 +42,7 @@ const Login = ({ setCurrentUser }) => {
       localStorage.setItem("authToken", token);
   
       // 🔑 Récupérer l'utilisateur connecté
-      const me = await AxiosInstance.post(
+      const me = await AxiosInstance.get(
         "/api/utilisateur-connecte/",
         {},
         {
