@@ -19,11 +19,6 @@ const HeroSection = () => {
         <div className="w-full md:w-1/2 text-white"> {/* text-white pour meilleur contraste */}
           <h1 className="text-4xl md:text-5xl font-bold mb-6">Bienvenue à l'InATA</h1>
           <p className="text-xl mb-8">Une éducation de qualité pour préparer les leaders de demain</p>
-          <div className="flex space-x-4">
-            <button className="border-2 border-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-blue-800 transition duration-300">
-              En savoir plus
-            </button>
-          </div>
         </div>
       </div>
     </section>

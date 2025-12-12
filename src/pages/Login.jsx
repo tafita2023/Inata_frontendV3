@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LogoInata from '../images/InATA2.png';
-import Background from '../images/background.jpg';
+import backgroundImg from '../images/background.jpg';
 import ErrorMessage from '../components/status/Error';
 import SuccessMessage from '../components/status/Success';
 
 // Lien pour gerer les version local et de production
-import AxiosInstance from './components/instance/AxiosInstance';
+import AxiosInstance from '../components/instance/AxiosInstance';
 
 const Login = ({ setCurrentUser }) => {
   const [emailInput, setEmailInput] = useState("");
@@ -95,7 +95,7 @@ const Login = ({ setCurrentUser }) => {
 
   return (
     <div className="min-h-screen bg-center bg-no-repeat flex items-center justify-center" style={{ 
-      backgroundImage: "url(${Background})", 
+      backgroundImage: "url(${backgroundImg})", 
       backgroundSize: "cover",
       backgroundPosition: "center"
     }}>
