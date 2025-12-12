@@ -45,7 +45,7 @@ import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 
 // Lien pour gerer les version local et de production
-import AxiosInstance from '../../components/instance/AxiosInstance';
+import AxiosInstance from './components/instance/AxiosInstance';
 
 function App() {
   const location = useLocation();
