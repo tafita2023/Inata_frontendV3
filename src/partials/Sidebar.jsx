@@ -5,7 +5,7 @@ import axios from "axios";
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import LogoInata from '../images/InATA2.png';
 // Lien pour gerer les version local et de production
-import AxiosInstance from '../../components/instance/AxiosInstance';
+import AxiosInstance from '../components/instance/AxiosInstance';
 
 function Sidebar({
   sidebarOpen,
