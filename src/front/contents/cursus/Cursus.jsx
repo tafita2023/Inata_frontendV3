@@ -1,6 +1,5 @@
 import React from 'react';
-import Flow from '../../images/cursus.png';
-
+import Flow from 'frontend/src/images/cursus.png';
 function Cursus() {
   return (
     <div className="bg-gray-100 flex flex-col items-center p-2">
