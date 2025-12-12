@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import LogoInata from '../images/InATA2.png';
+import LogoInata from '../../images/InATA2.png';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
