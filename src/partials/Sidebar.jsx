@@ -3,7 +3,9 @@ import { NavLink, useLocation } from "react-router-dom";
 import axios from "axios";
 
 import SidebarLinkGroup from "./SidebarLinkGroup";
-import LogoInata from '../images/Inata2.png';
+import LogoInata from '../images/InATA2.png';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Sidebar({
   sidebarOpen,
@@ -27,7 +29,7 @@ function Sidebar({
     const fetchCurrentUser = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get("http://127.0.0.1:8000/api/utilisateur-connecte/", {
+        const response = await AxiosInstance.get("/utilisateur-connecte/", {
           
           headers: { Authorization: `Bearer ${token}` },
         });
