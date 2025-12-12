@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LogoInata from '../images/InATA2.png';
+import Background from '../images/background.jpg';
 import ErrorMessage from '../components/status/Error';
 import SuccessMessage from '../components/status/Success';
+
+// Lien pour gerer les version local et de production
+import AxiosInstance from './components/instance/AxiosInstance';
 
 const Login = ({ setCurrentUser }) => {
   const [emailInput, setEmailInput] = useState("");
@@ -24,7 +28,7 @@ const Login = ({ setCurrentUser }) => {
       console.log("🌐 Tentative de connexion avec:", emailInput);
   
       // 🔑 Login
-      const response = await axios.post("http://127.0.0.1:8000/api/login/", {
+      const response = await AxiosInstance.post("/api/login/", {
         email: emailInput,
         password
       });
@@ -38,7 +42,7 @@ const Login = ({ setCurrentUser }) => {
       localStorage.setItem("authToken", token);
   
       // 🔑 Récupérer l'utilisateur connecté
-      const me = await axios.get("http://127.0.0.1:8000/api/utilisateur-connecte/", {
+      const me = await AxiosInstance.post("/api/utilisateur-connecte/", {
         headers: { Authorization: `Bearer ${token}` }
       });
   
@@ -91,7 +95,7 @@ const Login = ({ setCurrentUser }) => {
 
   return (
     <div className="min-h-screen bg-center bg-no-repeat flex items-center justify-center" style={{ 
-      backgroundImage: "url('src/images/background.jpg')", 
+      backgroundImage: "url(${Background})", 
       backgroundSize: "cover",
       backgroundPosition: "center"
     }}>
