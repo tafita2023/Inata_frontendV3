@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Banner from '../../partials/Banner';
@@ -7,6 +6,8 @@ import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
 import Photo from '../../images/user-36-06.jpg';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Bulletin() {
   const [users, setUsers] = useState([]);
@@ -24,10 +25,7 @@ function Bulletin() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/utilisateurs/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await AxiosInstance.get('/api/admin/utilisateurs/');
         const etudiants = response.data.filter(user => user.role === 'etud');
         const etudiantsAvecMoyenne = etudiants.map(user => {
           let moyenne = 0;
@@ -49,10 +47,7 @@ function Bulletin() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await AxiosInstance.get('/api/admin/classes/');
         setClasses(response.data);
       } catch (error) {
         console.error("Erreur récupération classes:", error);
@@ -85,14 +80,11 @@ const telechargerBulletins = async () => {
     return;
   }
   try {
-    const token = localStorage.getItem('authToken');
-    const response = await axios.get(
-      `http://127.0.0.1:8000/api/admin/bulletins/download/class/${downloadClasse}/`,
+    const response = await AxiosInstance.get(
+      `/api/admin/bulletins/download/class/${downloadClasse}/`,
       { 
-        headers: { Authorization: `Bearer ${token}` }, 
         responseType: 'blob' 
-      }
-    );
+      });
 
     const blob = new Blob([response.data], { type: 'application/pdf' });
     const link = document.createElement('a');
@@ -112,12 +104,9 @@ const telechargerBulletins = async () => {
   // Fonction pour télécharger le bulletin d'un étudiant spécifique
 const telechargerBulletinIndividuel = async (etudiantId, etudiantNom, etudiantPrenom) => {
   try {
-    const token = localStorage.getItem('authToken');
-    
-    const response = await axios.get(
-      `http://127.0.0.1:8000/api/admin/bulletins/download/${etudiantId}/`,
+    const response = await AxiosInstance.get(
+      `/api/admin/bulletins/download/${etudiantId}/`,
       { 
-        headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob' 
       }
     );
@@ -303,7 +292,7 @@ const telechargerBulletinIndividuel = async (etudiantId, etudiantNom, etudiantPr
             </h2>
             <div className="mb-5 flex justify-center">
               <img
-                src={selectedUser.photo ? `http://127.0.0.1:8000${selectedUser.photo}` : Photo}
+                src={selectedUser.photo ? `${selectedUser.photo}` : Photo}
                 alt="Photo de l'étudiant"
                 className="w-38 h-40 rounded object-cover shadow mb-4"
               />

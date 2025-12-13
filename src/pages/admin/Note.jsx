@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
-import Banner from '../../partials/Banner';
 import Footer from '../../partials/Footer';
 
 function NoteAdmin() {
@@ -27,10 +27,7 @@ function NoteAdmin() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const res = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await AxiosInstance.get('/api/admin/classes/');
         setClasses(res.data);
         if (res.data.length) setSelectedClasse(res.data[0].id.toString());
       } catch (err) {
@@ -44,10 +41,7 @@ function NoteAdmin() {
   useEffect(() => {
     const fetchMatieres = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        const res = await axios.get("http://127.0.0.1:8000/api/admin/matieres/", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await AxiosInstance.get("/api/admin/matieres/");
         setMatieres(res.data);
       } catch (err) {
         console.error(err);
@@ -60,10 +54,8 @@ function NoteAdmin() {
   const fetchEvaluations = async () => {
     if (!selectedMatiere) return;
     try {
-      const token = localStorage.getItem("authToken");
-      const res = await axios.get(
-        `http://127.0.0.1:8000/api/admin/evaluations/?matiere=${selectedMatiere.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await AxiosInstance.get(
+        `/api/admin/evaluations/?matiere=${selectedMatiere.id}`
       );
       setEvaluations(res.data);
     } catch (err) {
@@ -76,7 +68,6 @@ function NoteAdmin() {
     if (!selectedClasse) return;
 
     try {
-      const token = localStorage.getItem("authToken");
 
       const params = {
         matiere: matiereId,
@@ -84,9 +75,8 @@ function NoteAdmin() {
       };
       if (selectedAnnee) params.annee = selectedAnnee;
 
-      const res = await axios.get(
-        `http://127.0.0.1:8000/api/admin/notes/etudiants/`,
-        { headers: { Authorization: `Bearer ${token}` }, params }
+      const res = await AxiosInstance.get(
+        `/api/admin/notes/etudiants/`, params
       );
 
       const etudiantsMap = {};

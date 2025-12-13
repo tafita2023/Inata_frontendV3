@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
@@ -52,47 +53,39 @@ function EmploiDuTemps() {
 
   const handleSaveSalle = async () => {
     try {
-      const token = localStorage.getItem("authToken");
       const payload = {
         salle: salleNomEdit,
         description: salleDescription,
       };
   
       if (selectedSalleEdit) {
-        await axios.put(
-          `http://127.0.0.1:8000/api/admin/salle/${selectedSalleEdit.id}/`,
-          payload,
-          { headers: { Authorization: `Bearer ${token}` } }
+        await AxiosInstance.put(
+          `/api/admin/salle/${selectedSalleEdit.id}/`,
+          payload
         );
       } else {
-        await axios.post(
-          "http://127.0.0.1:8000/api/admin/salle/",
-          payload,
-          { headers: { Authorization: `Bearer ${token}` } }
+        await AxiosInstance.post(
+          "/api/admin/salle/",
+          payload
         );
       }
   
-      // Rafraîchir la liste des salles
-      const res = await axios.get("http://127.0.0.1:8000/api/admin/salle/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await AxiosInstance.get("/api/admin/salle/");
       setSalles(res.data);
       setAddEditSalleModalOpen(false);
-      alert("Salle Ajouter avec succès !");
+      alert("Salle ajoutée avec succès !");
     } catch (err) {
       console.error(err);
-      alert("Une erreur s'est produite lors de l'ajout de la salle.");
+      alert("Une erreur s'est produite");
     }
   };
-
+  
   // Supprimer salle
   const handleDeleteSalle = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer cette salle ?")) return;
     try {
       const token = localStorage.getItem("authToken");
-      await axios.delete(`http://127.0.0.1:8000/api/admin/salle/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await AxiosInstance.delete(`/api/admin/salle/${id}/`);
       setSalles(salles.filter(s => s.id !== id));
       alert("Salle Supprimer avec succès !");
     } catch (err) {
@@ -104,45 +97,35 @@ function EmploiDuTemps() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        });
+        const response = await AxiosInstance.get('/api/admin/classes/');
         setClasses(response.data);
+    
         if (response.data.length > 0) {
           setSelectedClasse(response.data[0].id.toString());
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des classes :', error);
+        console.error(error);
         setErrorMessage("Erreur lors du chargement des classes");
       }
     };
-    fetchClasses();
+        fetchClasses();
   }, []);
 
   // Charger les salles au montage du composant
   useEffect(() => {
     const fetchSalle = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/salle/', {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        });
+        const response = await AxiosInstance.get('/api/admin/salle/');
         setSalles(response.data);
+    
         if (response.data.length > 0) {
           setSelectedSalle(response.data[0].id.toString());
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des salles :', error);
+        console.error(error);
       }
     };
-    fetchSalle();
+        fetchSalle();
   }, []);
 
   // Initialiser un emploi du temps vide
@@ -167,9 +150,8 @@ function EmploiDuTemps() {
   
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/admin/emplois-du-temps/?classe_id=${selectedClasse}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await AxiosInstance.get(
+        `/api/admin/emplois-du-temps/?classe_id=${selectedClasse}`
       );
   
       const nouvelEmploi = initializeEmptyEmploi();
@@ -266,67 +248,39 @@ useEffect(() => {
         setMatieresModal([]);
         return;
       }
-
+  
       setLoading(true);
+  
       try {
-        const token = localStorage.getItem('authToken');
-        let endpoints = [
-          `http://127.0.0.1:8000/api/admin/matieres/?classe_id=${selectedClasse}`,
-          `http://127.0.0.1:8000/api/admin/matieres/?classe=${selectedClasse}`,
-          `http://127.0.0.1:8000/api/admin/matieres/`,
-        ];
-
+        // Un seul endpoint clair et propre
+        const response = await AxiosInstance.get(
+          `/api/admin/matieres/?classe=${selectedClasse}`
+        );
+  
         let matieresData = [];
-
-        for (const endpoint of endpoints) {
-          try {
-            const response = await axios.get(endpoint, {
-              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-            });
-            if (Array.isArray(response.data)) {
-              matieresData = response.data;
-              break;
-            } else if (response.data.results && Array.isArray(response.data.results)) {
-              matieresData = response.data.results;
-              break;
-            } else if (response.data.data && Array.isArray(response.data.data)) {
-              matieresData = response.data.data;
-              break;
-            }
-          } catch {
-            continue;
-          }
+  
+        if (Array.isArray(response.data)) {
+          matieresData = response.data;
+        } else if (response.data?.results && Array.isArray(response.data.results)) {
+          matieresData = response.data.results;
+        } else if (response.data?.data && Array.isArray(response.data.data)) {
+          matieresData = response.data.data;
         }
-
-        if (matieresData.length > 0 && selectedClasse) {
-          matieresData = matieresData.filter(matiere => 
-            matiere.classe_id == selectedClasse || 
-            matiere.classe == selectedClasse ||
-            (matiere.classes && matiere.classes.includes(parseInt(selectedClasse)))
-          );
-        }
-
+  
         setMatieresModal(matieresData);
-      } catch {
-        setMatieresModal([
-          { id: 1, nom: 'Mathématiques', professeur_nom: 'Dupont' },
-          { id: 2, nom: 'Français', professeur_nom: 'Martin' },
-          { id: 3, nom: 'Histoire', professeur_nom: 'Leroy' },
-          { id: 4, nom: 'Géographie', professeur_nom: 'Moreau' },
-          { id: 5, nom: 'SVT', professeur_nom: 'Simon' },
-          { id: 6, nom: 'Physique', professeur_nom: 'Laurent' },
-          { id: 7, nom: 'Anglais', professeur_nom: 'Petit' }
-        ]);
+      } catch (error) {
+        console.error("Erreur lors du chargement des matières", error);
+        setMatieresModal([]);
       } finally {
         setLoading(false);
       }
     };
-
+  
     if (isModalOpen) {
       fetchMatieresForModal();
     }
   }, [isModalOpen, selectedClasse]);
-
+  
   // Drag and drop
   const handleDragStart = (e, matiere) => {
     setDraggedMatiere(matiere);
@@ -374,10 +328,9 @@ useEffect(() => {
         return;
       }
 
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/admin/emplois-du-temps/',
-        saveData,
-        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      const response = await AxiosInstance.post(
+        '/api/admin/emplois-du-temps/',
+        saveData
       );
 
       if (response.status === 201) {

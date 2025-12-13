@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
@@ -8,6 +7,8 @@ import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
 import { set } from 'date-fns';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Classe() {
 
@@ -27,14 +28,9 @@ function Classe() {
 
 const fetchClasses = async () => {
     try {
-      const token = localStorage.getItem('authToken');
       console.log('Token utilisé:', token);
   
-      const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await AxiosInstance.get('/api/admin/classes/');
       setClasses(response.data);
       setErrorMessage('');
     } catch (error) {
@@ -49,8 +45,7 @@ const fetchClasses = async () => {
   
 const handleAddClasse = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      await axios.post('http://127.0.0.1:8000/api/admin/classes/', {
+      await AxiosInstance.post('/api/admin/classes/', {
         niveau: niveau,
         description: description
       }, {
@@ -78,14 +73,12 @@ const handleAddClasse = async () => {
 const handleUpdateClasse = async () => {
     if (!selectedClasse) return;
   
-    try {
-      const token = localStorage.getItem('authToken');
-  
+    try {  
       // Convertir updatedStatus en booléen
       const isActiveBool = updatedStatus === 'active' || updatedStatus === true;
   
-      const response = await axios.patch(
-        `http://127.0.0.1:8000/api/admin/classes/${selectedClasse.id}/`,
+      const response = await AxiosInstance.patch(
+        `/api/admin/classes/${selectedClasse.id}/`,
         {
           niveau: niveau,
           description: description,
@@ -119,12 +112,7 @@ const handleUpdateClasse = async () => {
   
   const handleDeleteClasse = async (classeId) => {
     try {
-      const token = localStorage.getItem('authToken');
-      await axios.delete(`http://127.0.0.1:8000/api/admin/classes/${classeId}/`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await AxiosInstance.delete(`/api/admin/classes/${classeId}/`);
   
       // Met à jour la liste des classes en retirant celle supprimée
       setClasses(prevClasses => prevClasses.filter(classe => classe.id !== classeId));

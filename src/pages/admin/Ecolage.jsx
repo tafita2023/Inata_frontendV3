@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Banner from '../../partials/Banner';
 import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Ecolage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,8 +34,7 @@ function Ecolage() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', { headers: { Authorization: `Bearer ${token}` } });
+        const response = await AxiosInstance.get('/api/admin/classes/');
         setClasses(response.data);
         if (response.data.length > 0) setSelectedClasse(response.data[0].id);
       } catch (error) { console.error(error); }
@@ -46,8 +46,7 @@ function Ecolage() {
   useEffect(() => {
     const fetchPaiements = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/paiements/', { headers: { Authorization: `Bearer ${token}` } });
+        const response = await AxiosInstance.get('/api/admin/paiements/');
         setPaiements(response.data);
       } catch (error) { console.error(error); setErrorMessage('Erreur lors du chargement des paiements'); }
     };
@@ -60,16 +59,14 @@ function Ecolage() {
 
     const fetchEtudiants = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get(`http://127.0.0.1:8000/api/admin/classes/${modalClasse}/etudiants/`, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await AxiosInstance.get(`/api/admin/classes/${modalClasse}/etudiants/`);
         setEtudiants(response.data);
       } catch (error) { console.error(error); setErrorMessage('Erreur lors du chargement des étudiants'); setEtudiants([]); }
     };
 
     const fetchMontant = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get(`http://127.0.0.1:8000/api/admin/frais-classe/${modalClasse}/`, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await AxiosInstance.get(`/api/admin/frais-classe/${modalClasse}/`);
         setMontant(response.data.montant);
       } catch (error) { console.error(error); setMontant(''); }
     };
@@ -119,17 +116,16 @@ function Ecolage() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('authToken');
       const montantTotal = parseFloat(montant) * selectedMonths.length;
       const data = { etudiant: parseInt(selectedEtudiant), montant_total: montantTotal.toString(), mode_paiement: 'liquide', mois: selectedMonths.map(m => m.toString()) };
 
-      await axios.post("http://localhost:8000/api/admin/paiements/ajouter/", data, { headers: { Authorization: `Bearer ${token}` } });
+      await AxiosInstance.post("/api/admin/paiements/ajouter/", data);
 
       setSuccessMessage('Paiement enregistré avec succès !');
       setIsModalOpen(false);
       setSelectedMonths([]);
 
-      const paiementsRes = await axios.get("http://127.0.0.1:8000/api/admin/paiements/", { headers: { Authorization: `Bearer ${token}` } });
+      const paiementsRes = await AxiosInstance.get("/api/admin/paiements/");
       setPaiements(paiementsRes.data);
 
     } catch (err) {

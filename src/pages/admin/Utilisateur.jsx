@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
@@ -8,6 +7,8 @@ import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
 import Photo from '../../images/user-36-06.jpg';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Utilisateur() {
     const [users, setUsers] = useState([]);
@@ -18,7 +19,6 @@ function Utilisateur() {
 
     const handleGenerateLink = async (role, classeId = null) => {
       try {
-        const token = localStorage.getItem('authToken');
         if (!token) {
           setErrorMessage('Veuillez vous connecter');
           return;
@@ -36,15 +36,9 @@ function Utilisateur() {
           payload.classe_id = classeId;
         }
     
-        const response = await axios.post(
-          'http://127.0.0.1:8000/api/admin/generate-invite/',
-          payload,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
+        const response = await AxiosInstance.post(
+          '/api/admin/generate-invite/',
+          payload
         );
     
         // Vérifie le code HTTP avant d’afficher le popup
@@ -80,17 +74,11 @@ function Utilisateur() {
         if (!selectedUser) return;
       
         try {
-          const token = localStorage.getItem('authToken');
-          const response = await axios.patch(
-            `http://127.0.0.1:8000/api/admin/utilisateurs/modifier/${selectedUser.id}/`,
+          const response = await AxiosInstance.patch(
+            `/api/admin/utilisateurs/modifier/${selectedUser.id}/`,
             {
               role: updatedRole,
               is_active: updatedStatus === 'active',
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
             }
           );
       
@@ -116,12 +104,7 @@ function Utilisateur() {
         if (!userToDelete) return;
       
         try {
-          const token = localStorage.getItem('authToken');
-          await axios.delete(`http://127.0.0.1:8000/api/admin/utilisateurs/supprimer/${userToDelete.id}/`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          await AxiosInstance.delete(`/api/admin/utilisateurs/supprimer/${userToDelete.id}/`);
       
           setUsers((prevUsers) => prevUsers.filter(user => user.id !== userToDelete.id));
           setSuccessMessage('Utilisateur supprimé avec succès');
@@ -140,14 +123,9 @@ function Utilisateur() {
     useEffect(() => {
     const fetchUsers = async () => {
         try {
-        const token = localStorage.getItem('authToken');
         console.log('Token utilisé:', token);
 
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/utilisateurs/', {
-            headers: {
-            Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await AxiosInstance.get('/api/admin/utilisateurs/');
         setUsers(response.data);
         setErrorMessage(''); 
         } catch (error) {
@@ -162,10 +140,7 @@ function Utilisateur() {
     useEffect(() => {
       const fetchClasses = async () => {
         try {
-          const token = localStorage.getItem('authToken');
-          const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const response = await AxiosInstance.get('/api/admin/classes/');
           setClasses(response.data);
         } catch (error) {
           console.error("Erreur récupération classes:", error);
@@ -289,11 +264,8 @@ function Utilisateur() {
                   <button
                     onClick={async () => {
                       try {
-                        const token = localStorage.getItem('authToken');
-                        const response = await axios.post(
-                          'http://127.0.0.1:8000/api/admin/promotion/',
-                          {},
-                          { headers: { Authorization: `Bearer ${token}` } }
+                                      const response = await AxiosInstance.post(
+                          '/api/admin/promotion/'
                         );
                         setSuccessMessage(`Promotion réussie : ${response.data.promus} promus, ${response.data.redoublants} redoublants`);
                       } catch (error) {
@@ -492,7 +464,7 @@ function Utilisateur() {
                       <img
                         src={
                           selectedUser.photo
-                            ? `http://127.0.0.1:8000${selectedUser.photo}`  // préfixe si chemin relatif
+                            ? `${selectedUser.photo}`  // préfixe si chemin relatif
                             : Photo
                         }
                         alt="Photo de l'utilisateur"

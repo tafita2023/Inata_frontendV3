@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
-import Banner from '../../partials/Banner';
 import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Matiere() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,16 +33,13 @@ function Matiere() {
 
   const fetchMatieres = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      let url = 'http://127.0.0.1:8000/api/admin/matieres/?ordering=id';
+      let url = '/api/admin/matieres/?ordering=id';
           
       if (selectedNiveau) {
         url += `&classe=${selectedNiveau}`;
       }
       
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(url);
       setMatieres(response.data);
     } catch (error) {
       console.error('Erreur lors du chargement des matières', error);
@@ -61,17 +58,12 @@ function Matiere() {
   const handleAddMatiere = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      await axios.post('http://127.0.0.1:8000/api/admin/matieres/', {
+      await AxiosInstance.post('/api/admin/matieres/', {
         nom: matiereNom,
         unite: selectedUnite, // 🔥 Correction: utiliser selectedUnite
         professeur: selectedProfesseur,
         classe: selectedClasse,
         is_active: statut === 'active',
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
       });
 
       await fetchMatieres();
@@ -104,12 +96,7 @@ function Matiere() {
         )
       );
   
-      await axios.put(`http://127.0.0.1:8000/api/admin/matieres/${selectedMatiereId}/`, updatedData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      await AxiosInstance.put(`/api/admin/matieres/${selectedMatiereId}/`, updatedData);
   
       setSuccessMessage("Matière modifiée avec succès !");
       setUpdateModal(false);
@@ -134,10 +121,7 @@ function Matiere() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await AxiosInstance.get('/api/admin/classes/');
         setClasses(response.data);
       } catch (error) {
         console.error('Erreur lors du chargement des classes :', error);
@@ -149,9 +133,7 @@ function Matiere() {
   const handleDeleteMatiere = async (matiereId) => {
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete(`http://127.0.0.1:8000/api/admin/matieres/${matiereId}/`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await AxiosInstance.delete(`/api/admin/matieres/${matiereId}/`);
       
       setSuccessMessage("Matière supprimée avec succès !");
       fetchMatieres();
@@ -164,10 +146,7 @@ function Matiere() {
   useEffect(() => {
     const fetchProfesseurs = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/professeurs/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await AxiosInstance.get('/api/admin/professeurs/');
         setProfesseurs(response.data);
       } catch (error) {
         console.error('Erreur lors du chargement des professeurs :', error);
@@ -180,10 +159,7 @@ function Matiere() {
   useEffect(() => {
     const fetchUnites = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/unites/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await AxiosInstance.get('/api/admin/unites/');
         setUnites(response.data);
       } catch (error) {
         console.error('Erreur lors du chargement des unités', error);
@@ -197,13 +173,8 @@ function Matiere() {
     try {
       const token = localStorage.getItem('authToken');
 
-      const response = await axios.post('http://127.0.0.1:8000/api/admin/unites/', {
+      const response = await AxiosInstance.post('/api/admin/unites/', {
         nom: uniteNom,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
       });
 
       // Mettre à jour l'état local
@@ -662,7 +633,6 @@ function Matiere() {
           <Footer />
         </main>
 
-        <Banner />
       </div>
     </div>
   );
