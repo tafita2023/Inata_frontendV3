@@ -1,6 +1,7 @@
 // Task.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Task() {
   const [tasks, setTasks] = useState([]);
@@ -13,7 +14,7 @@ function Task() {
     const fetchTasks = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await axios.get("http://127.0.0.1:8000/api/taches/", {
+        const res = await AxiosInstance.get("/api/taches/", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTasks(res.data);
@@ -29,8 +30,8 @@ function Task() {
     if (!newTaskDescription.trim()) return;
     try {
       const token = localStorage.getItem("authToken");
-      const res = await axios.post(
-        "http://127.0.0.1:8000/api/taches/",
+      const res = await AxiosInstance.post(
+        "/api/taches/",
         {
           description: newTaskDescription,
           priorite: newTaskPriority.toLowerCase(), // "basse", "moyenne", "haute"
@@ -53,8 +54,8 @@ function Task() {
       const token = localStorage.getItem("authToken");
       const newStatus = task.statut === "terminee" ? "a_faire" : "terminee";
 
-      const res = await axios.put(
-        `http://127.0.0.1:8000/api/taches/${task.id}/`,
+      const res = await AxiosInstance.put(
+        `/api/taches/${task.id}/`,
         { ...task, statut: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -69,7 +70,7 @@ function Task() {
   const removeTask = async (id) => {
     try {
       const token = localStorage.getItem("authToken");
-      await axios.delete(`http://127.0.0.1:8000/api/taches/${id}/`, {
+      await AxiosInstance.delete(`/api/taches/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(tasks.filter((task) => task.id !== id));

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// ❌ plus besoin de axios ici
+// import axios from "axios";
+
+// ✅ Instance Axios centralisée (local / prod)
+import AxiosInstance from "../../components/instance/AxiosInstance";
 
 function SalaireProf() {
   const [salaires, setSalaires] = useState([]);
@@ -13,7 +17,7 @@ function SalaireProf() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
   const [formData, setFormData] = useState({
     professeur: "",
     classe: "",
@@ -21,26 +25,23 @@ function SalaireProf() {
     montant: ""
   });
 
-  const token = localStorage.getItem("authToken");
-
-  const api = axios.create({
-    baseURL: "http://127.0.0.1:8000",
-    headers: { 
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
-  });
-
-  // Charger TOUTES les données une seule fois au début
+  // =======================
+  // CHARGEMENT INITIAL
+  // =======================
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
       try {
-        const [classesRes, salairesRes, matieresRes, profsRes] = await Promise.all([
-          api.get("/api/admin/classes/"),
-          api.get("/api/salaires-prof/"),
-          api.get("/api/admin/matieres/"),
-          api.get("/api/admin/professeurs/")
+        const [
+          classesRes,
+          salairesRes,
+          matieresRes,
+          profsRes
+        ] = await Promise.all([
+          AxiosInstance.get("/api/admin/classes/"),
+          AxiosInstance.get("/api/salaires-prof/"),
+          AxiosInstance.get("/api/admin/matieres/"),
+          AxiosInstance.get("/api/admin/professeurs/")
         ]);
 
         setAllClasses(classesRes.data);
@@ -48,13 +49,11 @@ function SalaireProf() {
         setAllMatieres(Array.isArray(matieresRes.data) ? matieresRes.data : []);
         setAllProfesseurs(profsRes.data);
 
-        // Initialiser avec la première classe
         if (classesRes.data.length > 0) {
-          const firstClassId = classesRes.data[0].id;
-          setSelectedClasse(firstClassId.toString());
+          setSelectedClasse(classesRes.data[0].id.toString());
         }
-      } catch (error) {
-        console.error("Erreur chargement données:", error);
+      } catch (err) {
+        console.error("Erreur chargement données :", err);
         setError("Erreur lors du chargement des données");
       } finally {
         setLoading(false);
@@ -64,81 +63,73 @@ function SalaireProf() {
     fetchAllData();
   }, []);
 
-  // Fonctions pour filtrer les données selon la classe sélectionnée
+  // =======================
+  // FILTRES
+  // =======================
   const getProfesseursFiltres = () => {
     if (!selectedClasse) return allProfesseurs;
-    
-    // 1. Récupérer toutes les matières de la classe sélectionnée
-    const matieresDeLaClasse = allMatieres.filter(
-      matiere => matiere.classe == selectedClasse
+
+    const matieresClasse = allMatieres.filter(
+      m => m.classe == selectedClasse
     );
-    
-    // 2. Extraire les IDs des professeurs de ces matières
-    const professeurIds = [...new Set(
-      matieresDeLaClasse
-        .map(matiere => matiere.professeur?.id || matiere.professeur)
-        .filter(id => id) // Enlever les null/undefined
-    )];
-    
-    // 3. Filtrer les professeurs qui ont ces IDs
-    return allProfesseurs.filter(prof => 
-      professeurIds.includes(prof.id)
-    );
+
+    const professeurIds = [
+      ...new Set(
+        matieresClasse
+          .map(m => m.professeur?.id || m.professeur)
+          .filter(Boolean)
+      )
+    ];
+
+    return allProfesseurs.filter(p => professeurIds.includes(p.id));
   };
 
-  const getMatieresFiltrees = () => {
-    if (!selectedClasse) return allMatieres;
-    
-    // Filtrer les matières par classe
+  const getMatieresParProfesseur = (profId) => {
+    if (!selectedClasse || !profId) return [];
     return allMatieres.filter(
-      matiere => matiere.classe == selectedClasse
+      m =>
+        m.classe == selectedClasse &&
+        (m.professeur?.id == profId || m.professeur == profId)
     );
   };
 
   const getSalairesFiltres = () => {
     if (!selectedClasse) return salaires;
-    return salaires.filter(salaire => {
-      const classeId = typeof salaire.classe === "object" ? salaire.classe.id : salaire.classe;
-      return parseInt(classeId) === parseInt(selectedClasse);
-    });
-  };
-
-  const getMatieresParProfesseur = (professeurId) => {
-    if (!selectedClasse || !professeurId) return [];
-    
-    // Filtrer les matières par classe ET par professeur
-    return allMatieres.filter(
-      matiere => matiere.classe == selectedClasse && 
-                (matiere.professeur?.id == professeurId || matiere.professeur == professeurId)
+    return salaires.filter(s =>
+      parseInt(s.classe?.id || s.classe) === parseInt(selectedClasse)
     );
   };
 
+  // =======================
+  // HELPERS AFFICHAGE
+  // =======================
   const getProfesseurName = (prof) => {
     if (!prof) return "—";
-    // Si c'est un objet complet, prendre nom/prenom
     if (typeof prof === "object") return `${prof.nom} ${prof.prenom}`;
-    // Sinon c'est un ID, chercher dans allProfesseurs
     const p = allProfesseurs.find(p => p.id == prof);
     return p ? `${p.nom} ${p.prenom}` : "—";
   };
-  
+
   const getClasseName = (classe) => {
     if (!classe) return "—";
     if (typeof classe === "object") return classe.niveau;
     const c = allClasses.find(c => c.id == classe);
     return c ? c.niveau : "—";
   };
-  
+
   const getMatiereName = (matiere) => {
     if (!matiere) return "—";
     if (typeof matiere === "object") return matiere.nom;
     const m = allMatieres.find(m => m.id == matiere);
     return m ? m.nom : "—";
   };
-  
+
+  // =======================
+  // FORM HANDLERS
+  // =======================
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "classe") {
       setSelectedClasse(value);
       setFormData({
@@ -148,7 +139,6 @@ function SalaireProf() {
         matiere: ""
       });
     } else if (name === "professeur") {
-      // Quand le professeur change, réinitialiser la matière
       setFormData(prev => ({
         ...prev,
         professeur: value,
@@ -160,183 +150,107 @@ function SalaireProf() {
         [name]: value
       }));
     }
-    
-    // Effacer les messages d'erreur
+
     if (error) setError("");
   };
 
-  // Pour l'ajout : matières filtrées par professeur sélectionné
-  const getMatieresFiltreesParProfesseur = () => {
-    if (!formData.professeur || !formData.classe) return [];
-    
-    return allMatieres.filter(
-      matiere => 
-        matiere.classe == formData.classe &&
-        (matiere.professeur?.id == formData.professeur || matiere.professeur == formData.professeur)
-    );
-  };
-
+  // =======================
+  // AJOUT
+  // =======================
   const handleAddSalaire = async (e) => {
     e.preventDefault();
     setError("");
-  
-    // Validation des champs
+
     if (!formData.professeur || !formData.classe || !formData.matiere || !formData.montant) {
       setError("Tous les champs sont obligatoires");
       return;
     }
-  
-    // Vérifier que la matière appartient au professeur sélectionné
-    const matiereSelectionnee = allMatieres.find(m => m.id == formData.matiere);
-    const matiereAppartientAuProf = matiereSelectionnee &&
-      (matiereSelectionnee.professeur?.id == formData.professeur || matiereSelectionnee.professeur == formData.professeur);
-  
-    if (!matiereAppartientAuProf) {
-      setError("La matière sélectionnée n'est pas enseignée par ce professeur");
-      return;
-    }
-  
-    // ⚠ Vérification si le salaire existe déjà pour cette classe + matière + professeur
-    const salaireExistant = salaires.find(s => 
-      parseInt(s.classe?.id || s.classe) === parseInt(formData.classe) &&
-      parseInt(s.professeur?.id || s.professeur) === parseInt(formData.professeur) &&
-      parseInt(s.matiere?.id || s.matiere) === parseInt(formData.matiere)
-    );
-  
-    if (salaireExistant) {
-      setError("Un salaire pour ce professeur, cette matière et cette classe existe déjà.");
-      return;
-    }
-  
+
     try {
-      const data = {
-        professeur_id: parseInt(formData.professeur),
-        classe_id: parseInt(formData.classe),
-        matiere_id: parseInt(formData.matiere),
-        montant: parseFloat(formData.montant)
-      };
-  
-      const response = await api.post("/api/salaires-prof/", data);
-  
+      const response = await AxiosInstance.post("/api/salaires-prof/", {
+        professeur_id: Number(formData.professeur),
+        classe_id: Number(formData.classe),
+        matiere_id: Number(formData.matiere),
+        montant: Number(formData.montant)
+      });
+
       setSalaires(prev => [...prev, response.data]);
       setShowAddModal(false);
-      setFormData({
-        professeur: "",
-        classe: selectedClasse || (allClasses.length > 0 ? allClasses[0].id.toString() : ""),
-        matiere: "",
-        montant: ""
-      });
-      alert("Ajouté avec succès !");
-    } catch (error) {
-      console.error("Erreur lors de l'ajout :", error.response?.data || error);
-      setError(
-        error.response?.data?.detail ||
-        error.response?.data?.message ||
-        Object.values(error.response?.data || {}).join(", ") ||
-        "Erreur lors de l'ajout"
-      );
-    }
-  };
-    
-  const handleEditSalaire = async (e) => {
-    e.preventDefault();
-    setError("");
-  
-    // Validation des champs
-    if (!formData.professeur || !formData.classe || !formData.matiere || !formData.montant) {
-      setError("Tous les champs sont obligatoires");
-      return;
-    }
-  
-    // Vérifier que la matière appartient au professeur sélectionné
-    const matiereSelectionnee = allMatieres.find(m => m.id == formData.matiere);
-    const matiereAppartientAuProf = matiereSelectionnee &&
-      (matiereSelectionnee.professeur?.id == formData.professeur || matiereSelectionnee.professeur == formData.professeur);
-  
-    if (!matiereAppartientAuProf) {
-      setError("La matière sélectionnée n'est pas enseignée par ce professeur");
-      return;
-    }
-  
-    // Vérifier qu'aucun autre salaire n'existe pour la même combinaison
-    const salaireExistant = salaires.find(s => 
-      s.id !== selectedSalaire.id && // Ignorer le salaire actuel
-      parseInt(s.classe?.id || s.classe) === parseInt(formData.classe) &&
-      parseInt(s.professeur?.id || s.professeur) === parseInt(formData.professeur) &&
-      parseInt(s.matiere?.id || s.matiere) === parseInt(formData.matiere)
-    );
-  
-    if (salaireExistant) {
-      setError("Un salaire pour ce professeur, cette matière et cette classe existe déjà.");
-      return;
-    }
-  
-    try {
-      const data = {
-        professeur_id: parseInt(formData.professeur),
-        classe_id: parseInt(formData.classe),
-        matiere_id: parseInt(formData.matiere),
-        montant: parseFloat(formData.montant)
-      };
-  
-      const response = await api.put(`/api/salaires-prof/${selectedSalaire.id}/`, data);
-  
-      // Mettre à jour la liste locale
-      setSalaires(prev => prev.map(s => s.id === selectedSalaire.id ? response.data : s));
-  
-      setShowEditModal(false);
-      setSelectedSalaire(null);
-      setFormData({ professeur: "", classe: "", matiere: "", montant: "" });
-      alert("Modifié avec succès !");
-    } catch (error) {
-      console.error("Erreur lors de la modification :", error.response?.data || error);
-      setError(
-        error.response?.data?.detail ||
-        error.response?.data?.message ||
-        Object.values(error.response?.data || {}).join(", ") ||
-        "Erreur lors de la modification"
-      );
-    }
-  };
-    
-  const handleDeleteSalaire = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce salaire ?")) {
-      try {
-        await api.delete(`/api/salaires-prof/${id}/`);
-        
-        // Supprimer le salaire de la liste locale
-        setSalaires(prev => prev.filter(s => s.id !== id));
-      } catch (error) {
-        console.error("Erreur lors de la suppression :", error);
-        alert("Erreur: " + (error.response?.data?.detail || error.message));
-      }
+      setFormData({ professeur: "", classe: selectedClasse, matiere: "", montant: "" });
+    } catch (err) {
+      console.error(err);
+      setError("Erreur lors de l'ajout");
     }
   };
 
+  // =======================
+  // MODIFICATION
+  // =======================
+  const handleEditSalaire = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await AxiosInstance.put(
+        `/api/salaires-prof/${selectedSalaire.id}/`,
+        {
+          professeur_id: Number(formData.professeur),
+          classe_id: Number(formData.classe),
+          matiere_id: Number(formData.matiere),
+          montant: Number(formData.montant)
+        }
+      );
+
+      setSalaires(prev =>
+        prev.map(s => s.id === selectedSalaire.id ? response.data : s)
+      );
+
+      setShowEditModal(false);
+      setSelectedSalaire(null);
+    } catch (err) {
+      console.error(err);
+      setError("Erreur lors de la modification");
+    }
+  };
+
+  // =======================
+  // SUPPRESSION
+  // =======================
+  const handleDeleteSalaire = async (id) => {
+    if (!window.confirm("Supprimer ce salaire ?")) return;
+
+    try {
+      await AxiosInstance.delete(`/api/salaires-prof/${id}/`);
+      setSalaires(prev => prev.filter(s => s.id !== id));
+    } catch (err) {
+      alert("Erreur lors de la suppression");
+    }
+  };
+
+  // =======================
+  // PRÉPARER ÉDITION
+  // =======================
   const prepareEdit = (salaire) => {
-    const classeId = typeof salaire.classe === "object" ? salaire.classe.id : salaire.classe;
-    const professeurId = typeof salaire.professeur === "object" ? salaire.professeur.id : salaire.professeur;
-    const matiereId = typeof salaire.matiere === "object" ? salaire.matiere.id : salaire.matiere;
-    
     setSelectedSalaire(salaire);
-    setSelectedClasse(classeId.toString()); // METTRE À JOUR selectedClasse
+    setSelectedClasse((salaire.classe?.id || salaire.classe).toString());
+
     setFormData({
-      professeur: professeurId.toString(),
-      classe: classeId.toString(),
-      matiere: matiereId.toString(),
+      professeur: (salaire.professeur?.id || salaire.professeur).toString(),
+      classe: (salaire.classe?.id || salaire.classe).toString(),
+      matiere: (salaire.matiere?.id || salaire.matiere).toString(),
       montant: salaire.montant.toString()
     });
+
     setShowEditModal(true);
     setError("");
   };
 
-  // Données filtrées pour l'affichage
-  const professeursFiltres = getProfesseursFiltres();
   const salairesFiltres = getSalairesFiltres();
+  const professeursFiltres = getProfesseursFiltres();
 
-  // Pour l'édition : récupérer les matières du professeur sélectionné dans le formulaire
-  const matieresPourEdition = getMatieresParProfesseur(formData.professeur);
-
+  // =======================
+  // RENDER
+  // =======================
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
       <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex justify-between items-center">

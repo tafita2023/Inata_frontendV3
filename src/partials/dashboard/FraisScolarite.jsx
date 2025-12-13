@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function FraisScolarite() {
   const [classes, setClasses] = useState([]); // Frais existants
@@ -16,15 +18,15 @@ function FraisScolarite() {
   useEffect(() => {
     if (!token) return;
 
-    axios
-      .get("http://127.0.0.1:8000/api/admin/frais-classe/", {
+    AxiosInstance
+      .get("/api/admin/frais-classe/", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setClasses(res.data))
       .catch((err) => console.error(err));
 
-    axios
-      .get("http://127.0.0.1:8000/api/admin/classes/", {
+    AxiosInstance
+      .get("/api/admin/classes/", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setAllClasses(res.data))
@@ -44,8 +46,8 @@ function FraisScolarite() {
     if (!selectedFrais || !newMontant || !newClasse) return;
 
     try {
-      await axios.put(
-        `http://127.0.0.1:8000/api/admin/frais-classe/${selectedFrais.id}/`,
+      await AxiosInstance.put(
+        `/api/admin/frais-classe/${selectedFrais.id}/`,
         { classe: newClasse, montant: newMontant },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -74,8 +76,8 @@ function FraisScolarite() {
     if (!window.confirm("Voulez-vous vraiment supprimer ce frais ?")) return;
 
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/admin/frais-classe/${fraisId}/`,
+      await AxiosInstance.delete(
+        `/api/admin/frais-classe/${fraisId}/`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -98,8 +100,8 @@ function FraisScolarite() {
     if (!newClasse || !newMontant) return;
 
     try {
-      const res = await axios.post(
-        `http://127.0.0.1:8000/api/admin/frais-classe/`,
+      const res = await AxiosInstance.post(
+        `/api/admin/frais-classe/`,
         { classe: newClasse, montant: newMontant },
         { headers: { Authorization: `Bearer ${token}` } }
       );

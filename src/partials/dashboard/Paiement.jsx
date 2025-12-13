@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Paiement() {
   const [paiements, setPaiements] = useState([]);
@@ -10,7 +12,7 @@ function Paiement() {
     const fetchPaiements = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await axios.get("http://127.0.0.1:8000/api/admin/paiements/", {
+        const res = await AxiosInstance.get("/api/admin/paiements/", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPaiements(res.data);

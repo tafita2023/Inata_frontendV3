@@ -31,7 +31,7 @@ function Absence() {
 
   const fetchClasses = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
+      const response = await AxiosInstance.get('/api/admin/classes/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setClasses(response.data);
