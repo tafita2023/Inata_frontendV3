@@ -39,7 +39,7 @@ function Matiere() {
         url += `&classe=${selectedNiveau}`;
       }
       
-      const response = await axios.get(url);
+      const response = await AxiosInstance.get(url);
       setMatieres(response.data);
     } catch (error) {
       console.error('Erreur lors du chargement des matières', error);
@@ -57,7 +57,6 @@ function Matiere() {
   
   const handleAddMatiere = async () => {
     try {
-      const token = localStorage.getItem('authToken');
       await AxiosInstance.post('/api/admin/matieres/', {
         nom: matiereNom,
         unite: selectedUnite, // 🔥 Correction: utiliser selectedUnite
@@ -80,7 +79,6 @@ function Matiere() {
     if (!selectedMatiereId) return;
   
     try {
-      const token = localStorage.getItem('authToken');
       const updatedData = {
         nom: matiereNom,
         unite: selectedUnite, // 🔥 Correction: utiliser selectedUnite
@@ -132,7 +130,6 @@ function Matiere() {
 
   const handleDeleteMatiere = async (matiereId) => {
     try {
-      const token = localStorage.getItem('authToken');
       await AxiosInstance.delete(`/api/admin/matieres/${matiereId}/`);
       
       setSuccessMessage("Matière supprimée avec succès !");
@@ -171,8 +168,6 @@ function Matiere() {
   // Ajouter une unité
   const handleAddUnite = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-
       const response = await AxiosInstance.post('/api/admin/unites/', {
         nom: uniteNom,
       });
@@ -221,7 +216,7 @@ function Matiere() {
     setSelectedMatiereId(matiere.id);
     setSelectedClasse(matiere.classe);
     setMatiereNom(matiere.nom);
-    setSelectedUnite(matiere.unite || ''); // 🔥 Correction: utiliser selectedUnite
+    setSelectedUnite(matiere.unite || '');
     setSelectedProfesseur(matiere.professeur);
     setStatut(matiere.is_active ? 'active' : 'inactive');
     setUpdateModal(true);
