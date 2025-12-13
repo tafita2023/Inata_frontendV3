@@ -19,11 +19,6 @@ function Utilisateur() {
 
     const handleGenerateLink = async (role, classeId = null) => {
       try {
-        if (!token) {
-          setErrorMessage('Veuillez vous connecter');
-          return;
-        }
-    
         const backendRoleMap = {
           admin: 'admin',
           prof: 'prof',
@@ -31,45 +26,44 @@ function Utilisateur() {
         };
         const backendRole = backendRoleMap[role];
     
+        if (!backendRole) {
+          setErrorMessage('Rôle invalide');
+          setSuccessMessage('');
+          return;
+        }
+    
         const payload = { role: backendRole };
         if (backendRole === 'etud' && classeId) {
           payload.classe_id = classeId;
         }
     
-        const response = await AxiosInstance.post(
-          '/api/admin/generate-invite/',
-          payload
-        );
+        const response = await AxiosInstance.post('/api/admin/generate-invite/', payload);
     
-        // Vérifie le code HTTP avant d’afficher le popup
-        if (response.status === 201 && response.data.invite_link) {
+        if ((response.status === 201 || response.status === 200) && response.data.invite_link) {
           setInviteLink(response.data.invite_link);
-          setIsModalOpen(true);  // 👈 uniquement si succès
+          setIsModalOpen(true);
           setSuccessMessage('Lien généré avec succès');
           setErrorMessage('');
         } else {
-          setErrorMessage('Impossible de générer le lien');
           setIsModalOpen(false);
+          setErrorMessage('Impossible de générer le lien');
+          setSuccessMessage('');
         }
-    
       } catch (error) {
         console.error('Erreur:', error);
-        setIsModalOpen(false);  // 👈 fermer le popup si erreur
+        setIsModalOpen(false);
+        let message = 'Erreur de connexion au serveur';
         if (error.response) {
-          if (error.response.status === 401) {
-            setErrorMessage('Session expirée, veuillez vous reconnecter');
-          } else if (error.response.status === 403) {
-            setErrorMessage('Permission refusée - Seuls les administrateurs peuvent générer des liens');
-          } else {
-            setErrorMessage(`Erreur: ${error.response.data?.error || error.message}`);
-          }
-        } else {
-          setErrorMessage('Erreur de connexion au serveur');
+          const status = error.response.status;
+          if (status === 401) message = 'Session expirée, veuillez vous reconnecter';
+          else if (status === 403) message = 'Permission refusée - Seuls les administrateurs peuvent générer des liens';
+          else message = `Erreur: ${error.response.data?.error || error.message}`;
         }
+        setErrorMessage(message);
         setSuccessMessage('');
       }
     };
-              
+                  
     const handleUpdateUser = async () => {
         if (!selectedUser) return;
       
@@ -123,8 +117,6 @@ function Utilisateur() {
     useEffect(() => {
     const fetchUsers = async () => {
         try {
-        console.log('Token utilisé:', token);
-
         const response = await AxiosInstance.get('/api/admin/utilisateurs/');
         setUsers(response.data);
         setErrorMessage(''); 

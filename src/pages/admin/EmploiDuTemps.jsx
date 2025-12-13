@@ -84,7 +84,6 @@ function EmploiDuTemps() {
   const handleDeleteSalle = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer cette salle ?")) return;
     try {
-      const token = localStorage.getItem("authToken");
       await AxiosInstance.delete(`/api/admin/salle/${id}/`);
       setSalles(salles.filter(s => s.id !== id));
       alert("Salle Supprimer avec succès !");
@@ -149,7 +148,6 @@ function EmploiDuTemps() {
     }
   
     try {
-      const token = localStorage.getItem('authToken');
       const response = await AxiosInstance.get(
         `/api/admin/emplois-du-temps/?classe_id=${selectedClasse}`
       );
@@ -300,13 +298,8 @@ useEffect(() => {
   // Sauvegarder l'emploi du temps
   const handleSaveEmploi = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        alert('Token d\'authentification manquant');
-        return;
-      }
-
       const saveData = [];
+  
       Object.keys(emploiDuTemps).forEach(jour => {
         Object.keys(emploiDuTemps[jour]).forEach(horaire => {
           const matiere = emploiDuTemps[jour][horaire];
@@ -321,19 +314,19 @@ useEffect(() => {
           }
         });
       });
-
+  
       if (saveData.length === 0) {
         setErrorMessage("Aucune matière à sauvegarder");
         setSuccessMessage("");
         return;
       }
-
+  
       const response = await AxiosInstance.post(
         '/api/admin/emplois-du-temps/',
         saveData
       );
-
-      if (response.status === 201) {
+  
+      if (response.status === 201 || response.status === 200) {
         setSuccessMessage("Emploi du temps sauvegardé avec succès !");
         setErrorMessage("");
         setIsModalOpen(false);
@@ -343,10 +336,13 @@ useEffect(() => {
       }
     } catch (error) {
       console.error(error);
-      console.log('Erreur lors de la sauvegarde');
+      // Essayer de récupérer le message du backend
+      const backendMessage = error.response?.data?.detail || error.response?.data || error.message;
+      setErrorMessage(`Erreur lors de la sauvegarde : ${backendMessage}`);
+      setSuccessMessage("");
     }
   };
-
+  
   // Calculer la longueur d'un bloc
   const calculateBlockLength = (jour, horaire, matiereId) => {
     if (!matiereId) return 0;

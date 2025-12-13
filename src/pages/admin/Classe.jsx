@@ -27,9 +27,7 @@ function Classe() {
     const [classeToDelete, setClasseToDelete] = useState(null);
 
 const fetchClasses = async () => {
-    try {
-      console.log('Token utilisé:', token);
-  
+    try {  
       const response = await AxiosInstance.get('/api/admin/classes/');
       setClasses(response.data);
       setErrorMessage('');
@@ -48,11 +46,6 @@ const handleAddClasse = async () => {
       await AxiosInstance.post('/api/admin/classes/', {
         niveau: niveau,
         description: description
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
       });
   
       await fetchClasses();
@@ -83,12 +76,6 @@ const handleUpdateClasse = async () => {
           niveau: niveau,
           description: description,
           is_active: isActiveBool,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
         }
       );
   
