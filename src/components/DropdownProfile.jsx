@@ -3,16 +3,15 @@ import { Link } from 'react-router-dom';
 import Transition from '../utils/Transition';
 import { useNavigate } from "react-router-dom";
 import { useThemeProvider } from "../utils/ThemeContext";
-import AxiosInstance from "./instance/AxiosInstance"; // Import AxiosInstance
 
-import UserAvatar from '../images/profil.jpg';
+import UserAvatar from '../images/user-36-07.jpg';
 
 function DropdownProfile({ align }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userNom, setUserNom] = useState('');
   const [userPrenom, setUserPrenom] = useState('');
   const [userRole, setUserRole] = useState('');
-  const [userPhoto, setUserPhoto] = useState(UserAvatar);
+  const [userPhoto, setUserPhoto] = useState(null);
 
   const navigate = useNavigate();
   const { changeCurrentTheme } = useThemeProvider();
@@ -20,51 +19,99 @@ function DropdownProfile({ align }) {
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  // Fonction pour récupérer les infos utilisateur depuis le backend
-  const fetchUserData = async () => {
-    try {
-      const response = await AxiosInstance.get("/api/utilisateur-connecte/");
-      const data = response.data;
+  // Fonction pour obtenir l'URL complète de la photo
+  const getFullPhotoUrl = (photoPath) => {
+    if (!photoPath || photoPath === 'null' || photoPath === 'undefined') {
+      return null;
+    }
+    
+    // Si déjà une URL complète
+    if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
+      return photoPath;
+    }
+    
+    // Chemin relatif Django (/media/...)
+    if (photoPath.startsWith('/media/')) {
+      // En production, utilisez votre domaine réel
+      // En développement, utilisez localhost:8000
+      const isProduction = process.env.NODE_ENV === 'production';
+      const baseUrl = isProduction ? ' https://gestion-inatabackend.onrender.com' : 'http://127.0.0.1:8000';
+      return `${baseUrl}${photoPath}`;
+    }
+    
+    // Si le chemin n'a pas de slash initial
+    if (photoPath.startsWith('media/')) {
+      const isProduction = process.env.NODE_ENV === 'production';
+      const baseUrl = isProduction ? ' https://gestion-inatabackend.onrender.com' : 'http://127.0.0.1:8000';
+      return `${baseUrl}/${photoPath}`;
+    }
+    
+    return null;
+  };
 
-      setUserNom(data.nom || '');
-      setUserPrenom(data.prenom || '');
-      setUserRole(data.role || '');
-      
-      let photoUrl = data.photo;
-      if (photoUrl && !photoUrl.startsWith('http')) {
-        photoUrl = `${AxiosInstance.defaults.baseURL}${photoUrl}`;
+  // Ajouter cache busting
+  const addCacheBusting = (url) => {
+    if (!url) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${Date.now()}`;
+  };
+
+  // Mettre à jour les données utilisateur
+  const updateUserData = () => {
+    const nom = localStorage.getItem('userNom') || '';
+    const prenom = localStorage.getItem('userPrenom') || '';
+    const role = localStorage.getItem('userRole') || '';
+    const photo = localStorage.getItem('userPhoto');
+    
+    setUserNom(nom);
+    setUserPrenom(prenom);
+    setUserRole(role);
+    
+    if (photo) {
+      const fullUrl = getFullPhotoUrl(photo);
+      if (fullUrl) {
+        setUserPhoto(addCacheBusting(fullUrl)); // Cache busting
+      } else {
+        setUserPhoto(null);
       }
-      setUserPhoto(photoUrl || UserAvatar);
-
-      // Mettre à jour le localStorage
-      localStorage.setItem('userNom', data.nom || '');
-      localStorage.setItem('userPrenom', data.prenom || '');
-      localStorage.setItem('userRole', data.role || '');
-      if (photoUrl) localStorage.setItem('userPhoto', photoUrl);
-
-    } catch (err) {
-      console.error("Erreur récupération utilisateur:", err);
-      setUserPhoto(UserAvatar);
+    } else {
+      setUserPhoto(null);
     }
   };
 
+  // Écouter les changements de localStorage
   useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  // Écoute les changements de localStorage pour refléter les mises à jour
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const photo = localStorage.getItem('userPhoto');
-      if (photo && !photo.startsWith('http')) {
-        setUserPhoto(`${AxiosInstance.defaults.baseURL}${photo}`);
-      } else {
-        setUserPhoto(photo || UserAvatar);
+    // Chargement initial
+    updateUserData();
+    
+    // Créer un intervalle pour vérifier les changements (solution cross-tab)
+    const intervalId = setInterval(() => {
+      updateUserData();
+    }, 1000); // Vérifie toutes les secondes
+    
+    // Écouter l'événement storage (changements depuis d'autres onglets)
+    const handleStorageChange = (e) => {
+      if (e.key === 'userPhoto' || e.key === 'userNom' || e.key === 'userPrenom' || e.key === 'userRole') {
+        updateUserData();
       }
     };
-
+    
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    
+    // Écouter les événements personnalisés (pour les changements dans le même onglet)
+    const handleCustomEvent = (e) => {
+      if (e.detail.type === 'userUpdate') {
+        updateUserData();
+      }
+    };
+    
+    window.addEventListener('userUpdated', handleCustomEvent);
+    
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userUpdated', handleCustomEvent);
+    };
   }, []);
 
   // Fermer le dropdown si clic en dehors
@@ -88,7 +135,12 @@ function DropdownProfile({ align }) {
     return () => document.removeEventListener('keydown', keyHandler);
   }, [dropdownOpen]);
 
-  const roleMap = { admin: 'Administrateur', prof: 'Professeur', etud: 'Étudiant' };
+  // Formater le rôle
+  const roleMap = {
+    admin: 'Administrateur',
+    prof: 'Professeur',
+    etud: 'Étudiant',
+  };
   const displayRole = roleMap[userRole] || userRole;
 
   return (
@@ -101,12 +153,14 @@ function DropdownProfile({ align }) {
         aria-expanded={dropdownOpen}
       >
         <img
-          className="w-7 h-8 rounded-full"
+          className="w-8 h-8 rounded-full object-cover"
           src={userPhoto || UserAvatar}
           width="32"
           height="32"
           alt="User"
-          onError={(e) => { e.target.src = UserAvatar; }}
+          onError={(e) => {
+            e.target.src = UserAvatar;
+          }}
         />
         <div className="flex items-center truncate">
           <span className="truncate ml-2 text-sm font-medium text-gray-600 dark:text-gray-100 group-hover:text-gray-800 dark:group-hover:text-white">
@@ -134,8 +188,7 @@ function DropdownProfile({ align }) {
           onBlur={() => setDropdownOpen(false)}
         >
           <div className="pt-0.5 pb-2 px-3 mb-1 border-b border-gray-200 dark:border-gray-700/60">
-            <div className="font-medium text-gray-800 dark:text-gray-100">{userNom || 'Utilisateur'}</div>
-            <div className="font-medium text-gray-800 dark:text-gray-100">{userPrenom || 'Utilisateur'}</div>
+            <div className="font-medium text-gray-800 dark:text-gray-100">{userPrenom} {userNom}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400 italic">{displayRole || 'Rôle inconnu'}</div>
           </div>
           <ul>
@@ -145,7 +198,7 @@ function DropdownProfile({ align }) {
                 to="/profil"
                 onClick={() => setDropdownOpen(false)}
               >
-                Paramettres
+                Paramètres
               </Link>
             </li>
             <li>
@@ -153,20 +206,28 @@ function DropdownProfile({ align }) {
                 className="font-medium text-sm text-violet-500 hover:text-violet-600 dark:hover:text-violet-400 flex items-center py-1 px-3"
                 onClick={() => {
                   setDropdownOpen(false);
+                  
+                  // Vider le localStorage
                   localStorage.removeItem('authToken');
                   localStorage.removeItem('userNom');
                   localStorage.removeItem('userPrenom');
                   localStorage.removeItem('userRole');
                   localStorage.removeItem('userPhoto');
+                  localStorage.removeItem('userEmail');
+                  localStorage.removeItem('userPhone');
+                  localStorage.removeItem('userId');
+                  
+                  // Réinitialiser le state local
                   setUserNom('');
                   setUserPrenom('');
                   setUserRole('');
-                  setUserPhoto(UserAvatar);
+                  setUserPhoto(null);
+                  
                   changeCurrentTheme("light");
                   navigate("/");
                 }}
               >
-                Sign Out
+                Déconnexion
               </button>
             </li>
           </ul>
