@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useThemeProvider } from "../utils/ThemeContext";
 import AxiosInstance from "./instance/AxiosInstance"; // Import AxiosInstance
 
-import UserAvatar from '../images/user-36-07.jpg';
+import UserAvatar from '../images/profil.jpg';
 
 function DropdownProfile({ align }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
