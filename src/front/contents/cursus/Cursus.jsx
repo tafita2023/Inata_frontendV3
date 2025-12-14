@@ -6,9 +6,9 @@ const Cursus = () => {
       <div className="w-full max-w-7xl mx-auto">
         <header className="mb-8 md:mb-12 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2">
-            Bacheliers Scientifiques et Techniques
+           Cursus universitaire
           </h1>
-          <p className="text-gray-600">Diagramme des parcours académiques et professionnels</p>
+          <p className="text-gray-600"> Bacheliers Scientifiques et Techniques</p>
         </header>
 
         {/* Diagramme principal - version desktop */}
@@ -21,29 +21,13 @@ const Cursus = () => {
           <MobileDiagram />
         </div>
 
-        <div className="mt-12 p-6 bg-white rounded-xl shadow-md max-w-2xl mx-auto">
-          <h2 className="text-xl font-bold text-blue-800 mb-4">Légende des parcours</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-purple-500 rounded-full mr-2"></div>
-              <span className="font-medium">Parcours MDW - Multimédia et Développement Web</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-              <span className="font-medium">Parcours DA - Développement d'Applications</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-amber-500 rounded-full mr-2"></div>
-              <span className="font-medium">Parcours RSI - Réseaux et Systèmes Informatiques</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 };
 
 // Composant pour la version desktop améliorée
+// Composant pour la version desktop avec disposition verticale
 const DesktopDiagram = () => {
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -58,10 +42,10 @@ const DesktopDiagram = () => {
             <h3 className="font-bold text-blue-800 text-xl mb-3">TRONC COMMUN</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
-                <p className="font-bold text-blue-700 text-lg">L1 : S1 - S2</p>
+                <p className="font-bold text-blue-700 text-lg">L1 : 51 - 52</p>
               </div>
               <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
-                <p className="font-bold text-blue-700 text-lg">L2 : S3 - S4</p>
+                <p className="font-bold text-blue-700 text-lg">L2 : 53 - 54</p>
               </div>
             </div>
           </div>
@@ -76,47 +60,54 @@ const DesktopDiagram = () => {
         {/* Niveau 2: Options après L2 */}
         <div className="flex justify-center mb-12">
           <div className="grid grid-cols-3 gap-8 w-full max-w-4xl mx-auto">
-            {/* Vie Active (après L2) */}
-            <div className="bg-rose-50 p-5 rounded-xl border-2 border-rose-300 shadow-lg text-center">
+            {/* Vie Active (après L2) - Option directe */}
+            <div className="bg-rose-50 p-5 rounded-xl border-2 border-rose-300 shadow-lg text-center relative">
               <h3 className="font-bold text-rose-800 text-xl mb-2">Vie Active</h3>
               <p className="text-rose-700 font-medium">Technicien Supérieur Informatique</p>
+              {/* Flèche horizontale vers la droite depuis cette option */}
+              <div className="absolute right-0 top-1/2 w-8 h-0.5 bg-rose-400 transform translate-x-full -translate-y-1/2"></div>
+              <div className="absolute right-0 top-1/2 w-2 h-2 border-t-2 border-r-2 border-rose-400 transform rotate-45 translate-x-full -translate-y-1/2"></div>
             </div>
-
-            {/* Espace vide au centre pour l'alignement */}
-            <div></div>
 
             {/* Début des parcours (connecteur) */}
             <div className="relative flex items-center justify-center">
               <div className="text-center">
                 <div className="text-gray-500 font-medium mb-2">Choix de parcours</div>
-                <div className="w-4 h-4 bg-gray-400 rounded-full mx-auto"></div>
+                <div className="w-6 h-6 bg-gray-400 rounded-full mx-auto flex items-center justify-center">
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                </div>
               </div>
             </div>
+
+            {/* Espace vide pour l'alignement */}
+            <div></div>
           </div>
         </div>
 
-        {/* Flèche vers le bas depuis Options */}
+        {/* Flèche centrale unique vers le bas depuis le connecteur */}
         <div className="flex justify-center mb-12">
-          <div className="w-1 h-16 bg-gradient-to-b from-rose-400 to-purple-400"></div>
-          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-purple-400 transform rotate-45 mt-14"></div>
+          <div className="w-1 h-16 bg-gray-400"></div>
+          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-gray-400 transform rotate-45 mt-14"></div>
         </div>
 
         {/* Niveau 3: Les trois parcours en ligne */}
         <div className="mb-12">
           <div className="grid grid-cols-3 gap-8 w-full max-w-5xl mx-auto">
-            {/* Parcours MDW */}
+            {/* Parcours MDW - PAS de flèche en bas */}
             <div className="bg-purple-50 p-6 rounded-xl border-2 border-purple-300 shadow-lg text-center">
               <h3 className="font-bold text-purple-800 text-xl mb-2">Parcours MDW</h3>
               <p className="text-purple-700 font-medium">Multimédia et Développement Web</p>
             </div>
 
-            {/* Parcours DA */}
-            <div className="bg-green-50 p-6 rounded-xl border-2 border-green-300 shadow-lg text-center">
+            {/* Parcours DA - SEULEMENT celui-ci a une flèche vers le bas */}
+            <div className="bg-green-50 p-6 rounded-xl border-2 border-green-300 shadow-lg text-center relative">
               <h3 className="font-bold text-green-800 text-xl mb-2">Parcours DA</h3>
               <p className="text-green-700 font-medium">Développement d'Applications</p>
+              {/* Flèche verticale vers le bas depuis DA */}
+              <div className="absolute bottom-0 left-1/2 w-1 h-8 bg-green-400 transform -translate-x-1/2 translate-y-full"></div>
             </div>
 
-            {/* Parcours RSI */}
+            {/* Parcours RSI - PAS de flèche en bas */}
             <div className="bg-amber-50 p-6 rounded-xl border-2 border-amber-300 shadow-lg text-center">
               <h3 className="font-bold text-amber-800 text-xl mb-2">Parcours RSI</h3>
               <p className="text-amber-700 font-medium">Réseaux et Systèmes Informatiques</p>
@@ -124,20 +115,10 @@ const DesktopDiagram = () => {
           </div>
         </div>
 
-        {/* Flèches depuis les parcours vers L3 */}
+        {/* Flèche unique vers le bas depuis DA */}
         <div className="flex justify-center mb-12">
-          <div className="grid grid-cols-3 gap-8 w-full max-w-5xl mx-auto">
-            <div className="flex justify-center">
-              <div className="w-1 h-16 bg-purple-400"></div>
-            </div>
-            <div className="flex justify-center">
-              <div className="w-1 h-16 bg-green-400"></div>
-            </div>
-            <div className="flex justify-center">
-              <div className="w-1 h-16 bg-amber-400"></div>
-            </div>
-          </div>
-          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-indigo-400 transform rotate-45 mt-14 left-1/2 -translate-x-1/2"></div>
+          <div className="w-1 h-16 bg-green-400"></div>
+          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-indigo-400 transform rotate-45 mt-14"></div>
         </div>
 
         {/* Niveau 4: L3 */}
