@@ -754,48 +754,6 @@ function Sidebar({
               </li>
               )}
 
-              {/* Devoir Prof */}
-              {currentUser?.role?.toLowerCase() === "prof" && (
-              <li className={`pl-2.5 pr-3 py-2 mb-2 rounded-lg mb-0.5 last:mb-0 bg-linear-to-r transition-colors duration-150 ${
-                pathname.includes("professeur/salaire")
-                  ? "from-violet-500/[0.12] dark:from-violet-500/[0.24] to-violet-500/[0.04]"
-                  : "hover:from-violet-500/[0.08] hover:to-violet-500/[0.03] dark:hover:from-violet-500/[0.12] dark:hover:to-violet-500/[0.04]"
-              }`}>
-                  <NavLink
-                  end
-                  to="/professeur/salaire"
-                  className={`block text-gray-800 dark:text-gray-100 truncate transition duration-150 ${
-                    pathname.includes("professeur/salaire") ? "" : "hover:text-gray-900 dark:hover:text-white"
-                  }`}
-              >
-                  <div className="flex items-center">
-                  <svg
-                    className={`shrink-0 stroke-current ${
-                      pathname.includes('professeur/salaire') 
-                        ? 'text-violet-500' 
-                        : 'text-gray-400 dark:text-gray-500'
-                    }`}
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 22 22"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                  <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
-                  </svg>
-
-                    <span className="text-sm font-medium ml-2 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
-                      Salaire
-                    </span>
-                  </div>
-                </NavLink>
-              </li>
-              )}
-
                {/* Menu etudiant */}
 
               {/* Dashboard */}

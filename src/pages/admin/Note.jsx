@@ -76,9 +76,12 @@ function NoteAdmin() {
       if (selectedAnnee) params.annee = selectedAnnee;
 
       const res = await AxiosInstance.get(
-        `/api/admin/notes/etudiants/`, params
+        `/api/admin/notes/etudiants/`,
+        {
+          params: params
+        }
       );
-
+      
       const etudiantsMap = {};
 
       res.data.forEach(note => {
