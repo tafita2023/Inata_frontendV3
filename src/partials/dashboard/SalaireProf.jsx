@@ -1,8 +1,4 @@
 import React, { useState, useEffect } from "react";
-// ❌ plus besoin de axios ici
-// import axios from "axios";
-
-// ✅ Instance Axios centralisée (local / prod)
 import AxiosInstance from "../../components/instance/AxiosInstance";
 
 function SalaireProf() {
@@ -32,12 +28,7 @@ function SalaireProf() {
     const fetchAllData = async () => {
       setLoading(true);
       try {
-        const [
-          classesRes,
-          salairesRes,
-          matieresRes,
-          profsRes
-        ] = await Promise.all([
+        const [classesRes, salairesRes, matieresRes, profsRes] = await Promise.all([
           AxiosInstance.get("/api/admin/classes/"),
           AxiosInstance.get("/api/salaires-prof/"),
           AxiosInstance.get("/api/admin/matieres/"),
@@ -69,16 +60,10 @@ function SalaireProf() {
   const getProfesseursFiltres = () => {
     if (!selectedClasse) return allProfesseurs;
 
-    const matieresClasse = allMatieres.filter(
-      m => m.classe == selectedClasse
-    );
+    const matieresClasse = allMatieres.filter(m => m.classe == selectedClasse);
 
     const professeurIds = [
-      ...new Set(
-        matieresClasse
-          .map(m => m.professeur?.id || m.professeur)
-          .filter(Boolean)
-      )
+      ...new Set(matieresClasse.map(m => m.professeur?.id || m.professeur).filter(Boolean))
     ];
 
     return allProfesseurs.filter(p => professeurIds.includes(p.id));
@@ -87,17 +72,13 @@ function SalaireProf() {
   const getMatieresParProfesseur = (profId) => {
     if (!selectedClasse || !profId) return [];
     return allMatieres.filter(
-      m =>
-        m.classe == selectedClasse &&
-        (m.professeur?.id == profId || m.professeur == profId)
+      m => m.classe == selectedClasse && (m.professeur?.id == profId || m.professeur == profId)
     );
   };
 
   const getSalairesFiltres = () => {
     if (!selectedClasse) return salaires;
-    return salaires.filter(s =>
-      parseInt(s.classe?.id || s.classe) === parseInt(selectedClasse)
-    );
+    return salaires.filter(s => parseInt(s.classe?.id || s.classe) === parseInt(selectedClasse));
   };
 
   // =======================
@@ -132,23 +113,11 @@ function SalaireProf() {
 
     if (name === "classe") {
       setSelectedClasse(value);
-      setFormData({
-        ...formData,
-        classe: value,
-        professeur: "",
-        matiere: ""
-      });
+      setFormData({ ...formData, classe: value, professeur: "", matiere: "" });
     } else if (name === "professeur") {
-      setFormData(prev => ({
-        ...prev,
-        professeur: value,
-        matiere: ""
-      }));
+      setFormData(prev => ({ ...prev, professeur: value, matiere: "" }));
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
 
     if (error) setError("");
@@ -177,9 +146,11 @@ function SalaireProf() {
       setSalaires(prev => [...prev, response.data]);
       setShowAddModal(false);
       setFormData({ professeur: "", classe: selectedClasse, matiere: "", montant: "" });
+      alert("Salaire ajouter avec success!");
     } catch (err) {
       console.error(err);
       setError("Erreur lors de l'ajout");
+      alert("Echec de l'ajout du salaire!");
     }
   };
 
@@ -201,15 +172,14 @@ function SalaireProf() {
         }
       );
 
-      setSalaires(prev =>
-        prev.map(s => s.id === selectedSalaire.id ? response.data : s)
-      );
-
+      setSalaires(prev => prev.map(s => s.id === selectedSalaire.id ? response.data : s));
       setShowEditModal(false);
       setSelectedSalaire(null);
+      alert("Salaire modifier avec success!");
     } catch (err) {
       console.error(err);
       setError("Erreur lors de la modification");
+      alert("Echec de la modification du salaire!");
     }
   };
 
@@ -222,6 +192,8 @@ function SalaireProf() {
     try {
       await AxiosInstance.delete(`/api/salaires-prof/${id}/`);
       setSalaires(prev => prev.filter(s => s.id !== id));
+      alert("Salaire supprimer avec success!");
+
     } catch (err) {
       alert("Erreur lors de la suppression");
     }
@@ -233,14 +205,12 @@ function SalaireProf() {
   const prepareEdit = (salaire) => {
     setSelectedSalaire(salaire);
     setSelectedClasse((salaire.classe?.id || salaire.classe).toString());
-
     setFormData({
       professeur: (salaire.professeur?.id || salaire.professeur).toString(),
       classe: (salaire.classe?.id || salaire.classe).toString(),
       matiere: (salaire.matiere?.id || salaire.matiere).toString(),
       montant: salaire.montant.toString()
     });
-
     setShowEditModal(true);
     setError("");
   };
@@ -280,9 +250,7 @@ function SalaireProf() {
           <label className="mr-2 text-gray-700 dark:text-gray-200">Filtrer par classe :</label>
           <select
             value={selectedClasse}
-            onChange={(e) => {
-              setSelectedClasse(e.target.value);
-            }}
+            onChange={(e) => setSelectedClasse(e.target.value)}
             className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-sm shadow text-sm px-3 py-2 min-w-[120px] dark:text-gray-100"
           >
             <option value="">Toutes les classes</option>
@@ -305,6 +273,7 @@ function SalaireProf() {
                 </div>
               )}
               <form onSubmit={handleAddSalaire} className="flex flex-col gap-3">
+                {/* Classe */}
                 <select
                   name="classe"
                   required
@@ -314,12 +283,11 @@ function SalaireProf() {
                 >
                   <option value="">Sélectionner une classe</option>
                   {allClasses.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.niveau}
-                    </option>
+                    <option key={c.id} value={c.id}>{c.niveau}</option>
                   ))}
                 </select>
-                
+
+                {/* Professeur */}
                 <select
                   name="professeur"
                   required
@@ -329,16 +297,15 @@ function SalaireProf() {
                   disabled={!formData.classe}
                 >
                   <option value="">Sélectionner un professeur</option>
-                  {formData.classe && getProfesseursFiltres().map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nom} {p.prenom}
-                    </option>
+                  {formData.classe && professeursFiltres.map(p => (
+                    <option key={p.id} value={p.id}>{p.nom} {p.prenom}</option>
                   ))}
-                  {formData.classe && getProfesseursFiltres().length === 0 && (
+                  {formData.classe && professeursFiltres.length === 0 && (
                     <option disabled>Aucun professeur pour cette classe</option>
                   )}
                 </select>
-                
+
+                {/* Matière */}
                 <select
                   name="matiere"
                   required
@@ -348,16 +315,15 @@ function SalaireProf() {
                   disabled={!formData.classe || !formData.professeur}
                 >
                   <option value="">Sélectionner une matière</option>
-                  {getMatieresFiltreesParProfesseur().map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.nom}
-                    </option>
+                  {getMatieresParProfesseur(formData.professeur).map(m => (
+                    <option key={m.id} value={m.id}>{m.nom}</option>
                   ))}
-                  {formData.classe && formData.professeur && getMatieresFiltreesParProfesseur().length === 0 && (
+                  {formData.classe && formData.professeur && getMatieresParProfesseur(formData.professeur).length === 0 && (
                     <option disabled>Ce professeur n'a pas de matière dans cette classe</option>
                   )}
                 </select>
-                
+
+                {/* Montant */}
                 <input
                   name="montant"
                   required
@@ -369,20 +335,17 @@ function SalaireProf() {
                   onChange={handleInputChange}
                   className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm shadow text-sm px-3 py-2 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 />
-                
+
                 <div className="flex justify-end gap-2 mt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowAddModal(false);
-                      setError("");
-                    }}
+                    onClick={() => { setShowAddModal(false); setError(""); }}
                     className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
                   >
                     Annuler
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
                     disabled={!formData.classe || !formData.professeur || !formData.matiere || !formData.montant}
                   >
@@ -412,12 +375,9 @@ function SalaireProf() {
                   onChange={handleInputChange}
                   className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm shadow text-sm px-3 py-2 dark:text-gray-100"
                 >
-                  {allClasses.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.niveau}
-                    </option>
-                  ))}
+                  {allClasses.map(c => <option key={c.id} value={c.id}>{c.niveau}</option>)}
                 </select>
+
                 <select
                   name="professeur"
                   required
@@ -425,12 +385,9 @@ function SalaireProf() {
                   onChange={handleInputChange}
                   className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm shadow text-sm px-3 py-2 dark:text-gray-100"
                 >
-                  {getProfesseursFiltres().map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nom} {p.prenom}
-                    </option>
-                  ))}
+                  {professeursFiltres.map(p => <option key={p.id} value={p.id}>{p.nom} {p.prenom}</option>)}
                 </select>
+
                 <select
                   name="matiere"
                   required
@@ -438,12 +395,11 @@ function SalaireProf() {
                   onChange={handleInputChange}
                   className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm shadow text-sm px-3 py-2 dark:text-gray-100"
                 >
-                  {matieresPourEdition.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.nom}
-                    </option>
+                  {getMatieresParProfesseur(formData.professeur).map(m => (
+                    <option key={m.id} value={m.id}>{m.nom}</option>
                   ))}
                 </select>
+
                 <input
                   name="montant"
                   required
@@ -455,14 +411,11 @@ function SalaireProf() {
                   onChange={handleInputChange}
                   className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-sm shadow text-sm px-3 py-2 dark:text-gray-100"
                 />
+
                 <div className="flex justify-end gap-2 mt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowEditModal(false);
-                      setSelectedSalaire(null);
-                      setError("");
-                    }}
+                    onClick={() => { setShowEditModal(false); setSelectedSalaire(null); setError(""); }}
                     className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
                   >
                     Annuler
@@ -476,7 +429,7 @@ function SalaireProf() {
           </div>
         )}
 
-        {/* Tableau */}
+        {/* Tableau des salaires */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
@@ -504,15 +457,9 @@ function SalaireProf() {
                 salairesFiltres.map((item, index) => (
                   <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
                     <td className="px-6 py-4 text-gray-800 dark:text-gray-100">{index + 1}</td>
-                    <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
-                      {getProfesseurName(item.professeur)}
-                    </td>
-                    <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
-                      {getClasseName(item.classe)}
-                    </td>
-                    <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
-                      {getMatiereName(item.matiere)}
-                    </td>
+                    <td className="px-6 py-4 text-gray-800 dark:text-gray-100">{getProfesseurName(item.professeur)}</td>
+                    <td className="px-6 py-4 text-gray-800 dark:text-gray-100">{getClasseName(item.classe)}</td>
+                    <td className="px-6 py-4 text-gray-800 dark:text-gray-100">{getMatiereName(item.matiere)}</td>
                     <td className="px-6 py-4 text-gray-800 dark:text-gray-100 font-medium">
                       {parseFloat(item.montant).toLocaleString('fr-FR')} Ar
                     </td>
@@ -521,17 +468,13 @@ function SalaireProf() {
                         className="text-blue-500 hover:text-blue-700 font-medium transition"
                         onClick={() => prepareEdit(item)}
                       >
-                      <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-                      </svg>
+                        Modifier
                       </button>
                       <button
                         className="text-red-500 hover:text-red-700 font-medium transition"
                         onClick={() => handleDeleteSalaire(item.id)}
                       >
-                      <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-                      </svg>
+                        Supprimer
                       </button>
                     </td>
                   </tr>
@@ -539,9 +482,9 @@ function SalaireProf() {
               ) : (
                 <tr>
                   <td colSpan="6" className="text-center py-4 text-gray-500 dark:text-gray-400">
-                    {salaires.length === 0 
-                      ? "Aucun salaire enregistré. Cliquez sur 'Ajouter' pour commencer." 
-                      : selectedClasse 
+                    {salaires.length === 0
+                      ? "Aucun salaire enregistré. Cliquez sur 'Ajouter' pour commencer."
+                      : selectedClasse
                         ? `Aucun salaire trouvé pour la classe ${getClasseName(selectedClasse)}`
                         : "Aucun salaire trouvé"}
                   </td>

@@ -12,9 +12,7 @@ function Paiement() {
     const fetchPaiements = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await AxiosInstance.get("/api/admin/paiements/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await AxiosInstance.get("/api/admin/paiements/");
         setPaiements(res.data);
       } catch (err) {
         setError("Impossible de charger les paiements");

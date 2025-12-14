@@ -13,10 +13,7 @@ function Task() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        const res = await AxiosInstance.get("/api/taches/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+          const res = await AxiosInstance.get("/api/taches/");
         setTasks(res.data);
       } catch (err) {
         console.error(err);
@@ -29,35 +26,33 @@ function Task() {
   const handleAddTask = async () => {
     if (!newTaskDescription.trim()) return;
     try {
-      const token = localStorage.getItem("authToken");
       const res = await AxiosInstance.post(
         "/api/taches/",
         {
           description: newTaskDescription,
           priorite: newTaskPriority.toLowerCase(), // "basse", "moyenne", "haute"
           statut: "a_faire", // valeur par défaut
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
       setTasks([...tasks, res.data]);
       setNewTaskDescription("");
       setNewTaskPriority("moyenne");
       setIsPopupOpen(false);
+      alert("Note ajouter avec success!");
     } catch (err) {
       console.error("Erreur ajout tâche:", err.response?.data || err);
+      alert("Erreur lors de l'ajout de la note!");
     }
   };
 
   // Toggle statut (fait / en attente)
   const toggleTask = async (task) => {
     try {
-      const token = localStorage.getItem("authToken");
       const newStatus = task.statut === "terminee" ? "a_faire" : "terminee";
 
       const res = await AxiosInstance.put(
         `/api/taches/${task.id}/`,
-        { ...task, statut: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { ...task, statut: newStatus }
       );
 
       setTasks(tasks.map((t) => (t.id === task.id ? res.data : t)));
@@ -69,13 +64,12 @@ function Task() {
   // Supprimer
   const removeTask = async (id) => {
     try {
-      const token = localStorage.getItem("authToken");
-      await AxiosInstance.delete(`/api/taches/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await AxiosInstance.delete(`/api/taches/${id}/`);
       setTasks(tasks.filter((task) => task.id !== id));
+      alert("note supprimer avec success!");
     } catch (err) {
       console.error("Erreur suppression tâche:", err.response?.data || err);
+      alert("Erreur de suppression de la note!");
     }
   };
 
@@ -85,7 +79,7 @@ function Task() {
         <h2 className="font-semibold text-gray-800 dark:text-gray-100">Liste des tâches</h2>
         <button
           onClick={() => setIsPopupOpen(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded-sm hover:bg-blue-600 transition"
+          className="bg-green-500 text-white px-4 py-2 rounded-sm hover:bg-green-600 transition"
         >
           Ajouter
         </button>

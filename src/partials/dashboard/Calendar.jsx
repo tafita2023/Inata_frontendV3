@@ -18,10 +18,7 @@ export default function CalendarEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        const res = await AxiosInstance.get("/api/evenements/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+          const res = await AxiosInstance.get("/api/evenements/");
         setEvents(res.data);
       } catch (err) {
         console.error(err);
@@ -42,7 +39,6 @@ export default function CalendarEvents() {
   const handleAddEvent = async () => {
     if (!eventMotif.trim()) return;
     try {
-      const token = localStorage.getItem("authToken");
       const res = await AxiosInstance.post(
         "/api/evenements/",
         {
@@ -50,12 +46,15 @@ export default function CalendarEvents() {
           date_debut: selectedDate.toISOString().split("T")[0],
           date_fin: eventEndDate || selectedDate.toISOString().split("T")[0],
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        
       );
       setEvents([...events, res.data]);
       setShowPopup(false);
+      alert("Evenement ajouter avec success!");
     } catch (err) {
       console.error("Erreur ajout événement:", err.response?.data || err);
+      alert("Echec de l'ajout de l'evenement!");
+
     }
   };
 

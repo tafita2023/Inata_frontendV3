@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+
 // Lien pour gerer les version local et de production
 import AxiosInstance from '../../components/instance/AxiosInstance';
 
@@ -19,16 +20,12 @@ function FraisScolarite() {
     if (!token) return;
 
     AxiosInstance
-      .get("/api/admin/frais-classe/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("/api/admin/frais-classe/")
       .then((res) => setClasses(res.data))
       .catch((err) => console.error(err));
 
     AxiosInstance
-      .get("/api/admin/classes/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("/api/admin/classes/")
       .then((res) => setAllClasses(res.data))
       .catch((err) => console.error(err));
   }, [token]);
@@ -48,8 +45,7 @@ function FraisScolarite() {
     try {
       await AxiosInstance.put(
         `/api/admin/frais-classe/${selectedFrais.id}/`,
-        { classe: newClasse, montant: newMontant },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { classe: newClasse, montant: newMontant }
       );
 
       setClasses((prev) =>
@@ -77,11 +73,10 @@ function FraisScolarite() {
 
     try {
       await AxiosInstance.delete(
-        `/api/admin/frais-classe/${fraisId}/`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        `/api/admin/frais-classe/${fraisId}/`)
 
       setClasses((prev) => prev.filter((f) => f.id !== fraisId));
+      alert("Ecolage ajouter avec success!");
     } catch (err) {
       console.error(err);
       alert("Erreur lors de la suppression");
@@ -102,8 +97,7 @@ function FraisScolarite() {
     try {
       const res = await AxiosInstance.post(
         `/api/admin/frais-classe/`,
-        { classe: newClasse, montant: newMontant },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { classe: newClasse, montant: newMontant }
       );
 
       const classeObj = allClasses.find((c) => c.id === newClasse);
@@ -111,6 +105,7 @@ function FraisScolarite() {
       setShowAddModal(false);
       setNewMontant("");
       setNewClasse("");
+      alert("Ecolage ajouter avec success!");
     } catch (err) {
       console.error(err);
       alert("Erreur lors de l'ajout des frais");
