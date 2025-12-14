@@ -43,7 +43,7 @@ function EmploiDuTemps() {
   // Charger emploi du temps
   useEffect(() => {
     if(!selectedClasse) return;
-    AxiosInstance.get(`/api/admin/emplois-du-temps/?classe_id=${selectedClasse}`)
+    AxiosInstance.get(`/api/professeur/emplois-du-temps/?classe_id=${selectedClasse}`)
       .then(res => {
         const nouvelEmploi = initializeEmptyEmploi();
         let salleTrouvee = null;
