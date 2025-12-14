@@ -31,9 +31,6 @@ const Cursus = () => {
 const DesktopDiagram = () => {
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8">
-      {/* Ligne verticale centrale */}
-      <div className="absolute left-1/2 top-20 bottom-20 w-0.5 bg-gradient-to-b from-blue-400 via-green-400 to-indigo-400 transform -translate-x-1/2"></div>
-      
       {/* Conteneur principal avec grille */}
       <div className="relative">
         {/* Niveau 1: TRONC COMMUN */}

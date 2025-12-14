@@ -1,5 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
-import axios from "axios";
+// Lien pour gerer les version local et de production
+import AxiosInstanceInstance from '../../components/instance/AxiosInstanceInstance';
+import AxiosInstance from "../../components/instance/AxiosInstance";
 
 export default function CalendarEvents() {
   const today = new Date();
@@ -16,10 +18,7 @@ export default function CalendarEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        const res = await axios.get("http://127.0.0.1:8000/api/evenements/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await AxiosInstance.get("/api/evenements/");
         setEvents(res.data);
       } catch (err) {
         console.error(err);

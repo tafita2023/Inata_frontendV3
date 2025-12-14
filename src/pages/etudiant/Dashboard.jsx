@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
-import Roue from '../../charts/DoughnutChart';
 import Calendar from '../../partials/dashboard/Agenda';
 
-import Eleve from '../../partials/dashboard/Eleve';
-import Prof from '../../partials/dashboard/Professeur';
-import Admin from '../../partials/dashboard/Admin';
+import Devoir from '../../partials/dashboard/Devoir';
+import Matiere from '../../partials/dashboard/Matieres';
 
 import Banner from '../../partials/Banner';
 import PopupMessage from '../../components/PopupMessage';
@@ -75,9 +73,8 @@ function Dashboard({ currentUser }) {
             {/* Cards */}
             <div className="grid grid-cols-12 gap-6">
 
-              <Eleve />
-              <Roue />
-              <Eleve />
+              <Devoir />
+              <Matiere />
               <Calendar />
             </div>
 
