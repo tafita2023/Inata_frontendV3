@@ -44,108 +44,127 @@ const Cursus = () => {
 };
 
 // Composant pour la version desktop améliorée
-const DesktopDiagram = () => {
+const DesktopVerticalDiagram = () => {
   return (
-    <div className="relative bg-white rounded-2xl shadow-xl p-8 min-h-[600px]">
-      {/* Ligne horizontale centrale principale */}
-      <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-300 transform -translate-y-1/2"></div>
+    <div className="bg-white rounded-2xl shadow-xl p-8">
+      {/* Ligne verticale centrale */}
+      <div className="absolute left-1/2 top-20 bottom-20 w-0.5 bg-gradient-to-b from-blue-400 via-green-400 to-indigo-400 transform -translate-x-1/2"></div>
       
-      {/* TRONC COMMUN - Positionné à gauche */}
-      <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
-        <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200 shadow-lg w-64">
-          <h3 className="font-bold text-blue-800 text-xl mb-3">TRONC COMMUN</h3>
-          <div className="space-y-3">
-            <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
-              <p className="font-bold text-blue-700 text-lg">L1 : 51 - 52</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
-              <p className="font-bold text-blue-700 text-lg">L2 : 53 - 54</p>
+      {/* Conteneur principal avec grille */}
+      <div className="relative">
+        {/* Niveau 1: TRONC COMMUN */}
+        <div className="flex justify-center mb-12">
+          <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200 shadow-lg w-80 text-center">
+            <h3 className="font-bold text-blue-800 text-xl mb-3">TRONC COMMUN</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
+                <p className="font-bold text-blue-700 text-lg">L1 : S1 - S2</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
+                <p className="font-bold text-blue-700 text-lg">L2 : S3 - S4</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Flèche de TRONC COMMUN vers les parcours */}
-      <div className="absolute left-72 top-1/2 w-32 h-0.5 bg-blue-400 transform -translate-y-1/2"></div>
-      <div className="absolute left-72 top-1/2 w-4 h-4 border-t-2 border-r-2 border-blue-400 transform rotate-45 -translate-y-1/2 translate-x-32"></div>
-
-      {/* Vie Active (après L2) - Positionné en haut */}
-      <div className="absolute left-1/3 top-1/4 transform -translate-x-1/2">
-        <div className="bg-rose-50 p-5 rounded-xl border-2 border-rose-300 shadow-lg text-center w-72">
-          <h3 className="font-bold text-rose-800 text-xl mb-2">Vie Active</h3>
-          <p className="text-rose-700 font-medium">Technicien Supérieur Informatique</p>
+        {/* Flèche vers le bas depuis TRONC COMMUN */}
+        <div className="flex justify-center mb-12">
+          <div className="w-1 h-16 bg-blue-400"></div>
+          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-blue-400 transform rotate-45 mt-14"></div>
         </div>
-      </div>
 
-      {/* Parcours MDW */}
-      <div className="absolute left-1/4 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="bg-purple-50 p-5 rounded-xl border-2 border-purple-300 shadow-lg text-center w-64">
-          <h3 className="font-bold text-purple-800 text-xl mb-2">Parcours MDW</h3>
-          <p className="text-purple-700 font-medium">Multimédia et Développement Web</p>
+        {/* Niveau 2: Options après L2 */}
+        <div className="flex justify-center mb-12">
+          <div className="grid grid-cols-3 gap-8 w-full max-w-4xl mx-auto">
+            {/* Vie Active (après L2) */}
+            <div className="bg-rose-50 p-5 rounded-xl border-2 border-rose-300 shadow-lg text-center">
+              <h3 className="font-bold text-rose-800 text-xl mb-2">Vie Active</h3>
+              <p className="text-rose-700 font-medium">Technicien Supérieur Informatique</p>
+            </div>
+
+            {/* Espace vide au centre pour l'alignement */}
+            <div></div>
+
+            {/* Début des parcours (connecteur) */}
+            <div className="relative flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-gray-500 font-medium mb-2">Choix de parcours</div>
+                <div className="w-4 h-4 bg-gray-400 rounded-full mx-auto"></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Parcours DA */}
-      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="bg-green-50 p-5 rounded-xl border-2 border-green-300 shadow-lg text-center w-64">
-          <h3 className="font-bold text-green-800 text-xl mb-2">Parcours DA</h3>
-          <p className="text-green-700 font-medium">Développement d'Applications</p>
+        {/* Flèche vers le bas depuis Options */}
+        <div className="flex justify-center mb-12">
+          <div className="w-1 h-16 bg-gradient-to-b from-rose-400 to-purple-400"></div>
+          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-purple-400 transform rotate-45 mt-14"></div>
         </div>
-      </div>
 
-      {/* Parcours RSI */}
-      <div className="absolute left-3/4 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="bg-amber-50 p-5 rounded-xl border-2 border-amber-300 shadow-lg text-center w-64">
-          <h3 className="font-bold text-amber-800 text-xl mb-2">Parcours RSI</h3>
-          <p className="text-amber-700 font-medium">Réseaux et Systèmes Informatiques</p>
+        {/* Niveau 3: Les trois parcours en ligne */}
+        <div className="mb-12">
+          <div className="grid grid-cols-3 gap-8 w-full max-w-5xl mx-auto">
+            {/* Parcours MDW */}
+            <div className="bg-purple-50 p-6 rounded-xl border-2 border-purple-300 shadow-lg text-center">
+              <h3 className="font-bold text-purple-800 text-xl mb-2">Parcours MDW</h3>
+              <p className="text-purple-700 font-medium">Multimédia et Développement Web</p>
+            </div>
+
+            {/* Parcours DA */}
+            <div className="bg-green-50 p-6 rounded-xl border-2 border-green-300 shadow-lg text-center">
+              <h3 className="font-bold text-green-800 text-xl mb-2">Parcours DA</h3>
+              <p className="text-green-700 font-medium">Développement d'Applications</p>
+            </div>
+
+            {/* Parcours RSI */}
+            <div className="bg-amber-50 p-6 rounded-xl border-2 border-amber-300 shadow-lg text-center">
+              <h3 className="font-bold text-amber-800 text-xl mb-2">Parcours RSI</h3>
+              <p className="text-amber-700 font-medium">Réseaux et Systèmes Informatiques</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Flèches depuis les parcours vers L3 */}
-      <div className="absolute left-1/4 top-1/2 w-0.5 h-20 bg-purple-400 transform translate-y-20"></div>
-      <div className="absolute left-1/2 top-1/2 w-0.5 h-20 bg-green-400 transform translate-y-20"></div>
-      <div className="absolute left-3/4 top-1/2 w-0.5 h-20 bg-amber-400 transform translate-y-20"></div>
-
-      {/* L3 - Positionné en bas */}
-      <div className="absolute left-1/2 bottom-1/4 transform -translate-x-1/2">
-        <div className="bg-indigo-50 p-5 rounded-xl border-2 border-indigo-300 shadow-lg text-center w-72">
-          <h3 className="font-bold text-indigo-800 text-xl mb-2">L3</h3>
-          <p className="text-indigo-700 font-bold text-lg">S5 - S6</p>
+        {/* Flèches depuis les parcours vers L3 */}
+        <div className="flex justify-center mb-12">
+          <div className="grid grid-cols-3 gap-8 w-full max-w-5xl mx-auto">
+            <div className="flex justify-center">
+              <div className="w-1 h-16 bg-purple-400"></div>
+            </div>
+            <div className="flex justify-center">
+              <div className="w-1 h-16 bg-green-400"></div>
+            </div>
+            <div className="flex justify-center">
+              <div className="w-1 h-16 bg-amber-400"></div>
+            </div>
+          </div>
+          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-indigo-400 transform rotate-45 mt-14 left-1/2 -translate-x-1/2"></div>
         </div>
-      </div>
 
-      {/* Flèche depuis L3 vers Vie Active finale */}
-      <div className="absolute left-1/2 bottom-1/4 w-0.5 h-20 bg-indigo-400 transform -translate-y-20 -translate-x-1/2"></div>
-
-      {/* Vie Active (après L3) - Positionné à droite */}
-      <div className="absolute right-8 top-1/2 transform -translate-y-1/2">
-        <div className="bg-rose-50 p-6 rounded-xl border-2 border-rose-300 shadow-lg text-center w-72">
-          <h3 className="font-bold text-rose-800 text-xl mb-2">Vie Active</h3>
-          <p className="text-rose-700 font-medium text-lg">Master Informatique</p>
+        {/* Niveau 4: L3 */}
+        <div className="flex justify-center mb-12">
+          <div className="bg-indigo-50 p-6 rounded-xl border-2 border-indigo-300 shadow-lg text-center w-80">
+            <h3 className="font-bold text-indigo-800 text-xl mb-2">L3</h3>
+            <p className="text-indigo-700 font-bold text-xl">S5 - S6</p>
+          </div>
         </div>
-      </div>
 
-      {/* Flèche de L3 vers Vie Active finale */}
-      <div className="absolute left-1/2 bottom-1/4 w-64 h-0.5 bg-indigo-400 transform translate-y-10 translate-x-32"></div>
-      <div className="absolute left-1/2 bottom-1/4 w-4 h-4 border-t-2 border-r-2 border-indigo-400 transform rotate-45 translate-y-10 translate-x-96"></div>
+        {/* Flèche vers le bas depuis L3 */}
+        <div className="flex justify-center mb-12">
+          <div className="w-1 h-16 bg-indigo-400"></div>
+          <div className="absolute w-4 h-4 border-b-2 border-r-2 border-indigo-400 transform rotate-45 mt-14"></div>
+        </div>
 
-      {/* Points de connexion */}
-      <div className="absolute left-1/4 top-1/2 w-3 h-3 bg-purple-500 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-lg"></div>
-      <div className="absolute left-1/2 top-1/2 w-3 h-3 bg-green-500 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-lg"></div>
-      <div className="absolute left-3/4 top-1/2 w-3 h-3 bg-amber-500 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-lg"></div>
-      <div className="absolute left-1/2 bottom-1/4 w-3 h-3 bg-indigo-500 rounded-full transform -translate-x-1/2 shadow-lg"></div>
-
-      {/* Légende des flèches */}
-      <div className="absolute left-1/3 top-1/4 transform -translate-x-1/2 -translate-y-10">
-        <div className="flex items-center text-sm text-gray-500">
-          <div className="w-8 h-0.5 bg-rose-300 mr-2"></div>
-          <span>Option après L2</span>
+        {/* Niveau 5: Vie Active finale */}
+        <div className="flex justify-center">
+          <div className="bg-rose-50 p-6 rounded-xl border-2 border-rose-300 shadow-lg text-center w-80">
+            <h3 className="font-bold text-rose-800 text-xl mb-2">Vie Active</h3>
+            <p className="text-rose-700 font-medium text-xl">Master Informatique</p>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
 // Composant pour la version mobile (inchangé mais amélioré pour la cohérence)
 const MobileDiagram = () => {
   return (
@@ -156,10 +175,10 @@ const MobileDiagram = () => {
           <h3 className="font-bold text-blue-800 text-xl mb-3">TRONC COMMUN</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
-              <p className="font-bold text-blue-700 text-lg">L1 : 51 - 52</p>
+              <p className="font-bold text-blue-700 text-lg">L1 : S1 - S2</p>
             </div>
             <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm">
-              <p className="font-bold text-blue-700 text-lg">L2 : 53 - 54</p>
+              <p className="font-bold text-blue-700 text-lg">L2 : S3 - S4</p>
             </div>
           </div>
         </div>

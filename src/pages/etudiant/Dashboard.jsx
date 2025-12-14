@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
-import Task from '../../partials/dashboard/Task';
+import Roue from '../../charts/DoughnutChart';
 import Calendar from '../../partials/dashboard/Agenda';
 
 import Eleve from '../../partials/dashboard/Eleve';
@@ -76,7 +76,7 @@ function Dashboard({ currentUser }) {
             <div className="grid grid-cols-12 gap-6">
 
               <Eleve />
-              <Eleve />
+              <Roue />
               <Eleve />
               <Calendar />
             </div>
