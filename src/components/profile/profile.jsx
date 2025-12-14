@@ -147,7 +147,7 @@ function Profil() {
     formData.append('photo', file);
 
     try {
-      const response = await AxiosInstance.put("/user/modifier-photo/", formData, {
+      const response = await AxiosInstance.put("/api/user/modifier-photo/", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
@@ -185,7 +185,7 @@ function Profil() {
     });
 
     try {
-      const response = await AxiosInstance.put("/user/modifier-profil/", formData, {
+      const response = await AxiosInstance.put("/api/user/modifier-profil/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
