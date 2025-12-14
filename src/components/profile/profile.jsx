@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-
 import Sidebar from "../../partials/Sidebar";
 import Header from "../../partials/Header";
 import Footer from "../../partials/Footer";
 import SuccessMessage from "../../components/status/Success";
 import ErrorMessage from "../../components/status/Error";
 import UserAvatar from '../../images/profil.jpg';
+import AxiosInstance from "../instance/AxiosInstance";
 
 // Icônes yeux
 const EyeOpen = () => (
@@ -58,6 +57,7 @@ function Profil() {
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Timer pour messages
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => setSuccessMessage(''), 4000);
@@ -72,13 +72,13 @@ function Profil() {
     }
   }, [errorMessage]);
 
-  // Récupération des infos depuis localStorage ET API
+  // Récupération infos utilisateur
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        
-        // D'abord, récupérer depuis localStorage
+
+        // LocalStorage
         const nom = localStorage.getItem('userNom') || '';
         const prenom = localStorage.getItem('userPrenom') || '';
         const role = localStorage.getItem('userRole') || '';
@@ -86,81 +86,42 @@ function Profil() {
         const phone = localStorage.getItem('userPhone') || '';
         const photo = localStorage.getItem('userPhoto') || null;
 
-        console.log('📱 Données localStorage - Photo:', photo);
-        console.log('📱 Toutes les données localStorage:', {
-          nom, prenom, email, phone, role, photo
-        });
-
-        // Mettre à jour l'état avec les données localStorage
-        setUser(prev => ({
-          ...prev,
-          nom,
-          prenom,
-          role,
-          email,
-          phone,
-          photo,
-        }));
-        
-        // Utiliser directement la photo du localStorage (déjà formatée dans Login)
+        setUser(prev => ({ ...prev, nom, prenom, role, email, phone, photo }));
         setPreviewPhoto(photo || UserAvatar);
 
-        // Ensuite, essayer de récupérer les données fraîches depuis l'API
-        const token = localStorage.getItem('authToken');
-        
-        if (token) {
-          console.log('🔄 Récupération des données depuis API...');
-          const response = await axios.get("http://127.0.0.1:8000/api/utilisateur-connecte/", {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
+        // API
+        const response = await AxiosInstance.get("/utilisateur-connecte/");
+        const userData = response.data;
 
-          const userData = response.data;
-          console.log('🔍 DONNÉES API COMPLÈTES:', userData);
-          console.log('🔍 PHOTO API:', userData.photo);
-          console.log('🔍 TOUS LES CHAMPS API:', Object.keys(userData));
-
-          // Construire l'URL complète de la photo depuis l'API
-          let apiPhotoUrl = userData.photo || null;
-          if (apiPhotoUrl && !apiPhotoUrl.startsWith('http')) {
-            apiPhotoUrl = `http://127.0.0.1:8000${apiPhotoUrl}`;
-          }
-
-          console.log('🖼️ URL photo finale:', apiPhotoUrl);
-
-          // Mettre à jour le state avec les données de l'API
-          setUser(prev => ({
-            ...prev,
-            nom: userData.nom || prev.nom,
-            prenom: userData.prenom || prev.prenom,
-            email: userData.email || prev.email,
-            phone: userData.phone || prev.phone,
-            role: userData.role || prev.role,
-            photo: apiPhotoUrl,
-          }));
-
-          // Utiliser la photo de l'API si disponible, sinon garder celle du localStorage
-          const finalPhotoUrl = apiPhotoUrl || photo;
-          setPreviewPhoto(finalPhotoUrl || UserAvatar);
-
-          // Mettre à jour localStorage avec les données fraîches
-          localStorage.setItem('userNom', userData.nom || '');
-          localStorage.setItem('userPrenom', userData.prenom || '');
-          localStorage.setItem('userEmail', userData.email || '');
-          localStorage.setItem('userPhone', userData.phone || '');
-          localStorage.setItem('userRole', userData.role || '');
-          localStorage.setItem('userId', userData.id || '');
-          
-          // Stocker la photo formatée
-          if (apiPhotoUrl) {
-            localStorage.setItem('userPhoto', apiPhotoUrl);
-          }
+        // Construire URL complète photo
+        let apiPhotoUrl = userData.photo || null;
+        if (apiPhotoUrl && !apiPhotoUrl.startsWith('http')) {
+          apiPhotoUrl = `${AxiosInstance.defaults.baseURL}${apiPhotoUrl}`;
         }
+
+        setUser(prev => ({
+          ...prev,
+          nom: userData.nom || prev.nom,
+          prenom: userData.prenom || prev.prenom,
+          email: userData.email || prev.email,
+          phone: userData.phone || prev.phone,
+          role: userData.role || prev.role,
+          photo: apiPhotoUrl,
+        }));
+
+        setPreviewPhoto(apiPhotoUrl || photo || UserAvatar);
+
+        // Mise à jour localStorage
+        localStorage.setItem('userNom', userData.nom || '');
+        localStorage.setItem('userPrenom', userData.prenom || '');
+        localStorage.setItem('userEmail', userData.email || '');
+        localStorage.setItem('userPhone', userData.phone || '');
+        localStorage.setItem('userRole', userData.role || '');
+        localStorage.setItem('userId', userData.id || '');
+        if (apiPhotoUrl) localStorage.setItem('userPhoto', apiPhotoUrl);
 
       } catch (error) {
         console.error('❌ Erreur récupération données:', error);
-        // En cas d'erreur, on garde les données localStorage
         const photo = localStorage.getItem('userPhoto');
         setPreviewPhoto(photo || UserAvatar);
       } finally {
@@ -180,44 +141,29 @@ function Profil() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Afficher un aperçu immédiat
     setPreviewPhoto(URL.createObjectURL(file));
 
-    // Préparer FormData
     const formData = new FormData();
     formData.append('photo', file);
 
     try {
-      const response = await axios.put(
-        "http://127.0.0.1:8000/api/user/modifier-photo/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-          }
-        }
-      );
+      const response = await AxiosInstance.put("/user/modifier-photo/", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
 
-      // Construire l'URL complète de la nouvelle photo
       let newPhotoUrl = response.data.photo;
       if (newPhotoUrl && !newPhotoUrl.startsWith('http')) {
-        newPhotoUrl = `http://127.0.0.1:8000${newPhotoUrl}`;
+        newPhotoUrl = `${AxiosInstance.defaults.baseURL}${newPhotoUrl}`;
       }
 
-      console.log('✅ Nouvelle photo uploadée:', newPhotoUrl);
-
-      // Mettre à jour le state et localStorage
       setUser(prev => ({ ...prev, photo: newPhotoUrl }));
       setPreviewPhoto(newPhotoUrl);
       localStorage.setItem('userPhoto', newPhotoUrl);
-      
       setSuccessMessage("Photo mise à jour avec succès");
 
     } catch (err) {
       console.error("❌ Erreur upload photo:", err);
       setErrorMessage("Erreur lors de l'upload de la photo");
-      // Revenir à l'ancienne photo en cas d'erreur
       const oldPhoto = localStorage.getItem('userPhoto');
       setPreviewPhoto(oldPhoto || UserAvatar);
     }
@@ -226,15 +172,12 @@ function Profil() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Vérification des mots de passe
     if (user.new_password && user.new_password !== user.confirm_password) {
       setErrorMessage("Les mots de passe ne correspondent pas");
       return;
     }
 
     const formData = new FormData();
-
-    // Ajouter tous les champs remplis de l'utilisateur
     Object.keys(user).forEach((key) => {
       if (user[key] !== null && user[key] !== undefined && user[key] !== '') {
         formData.append(key, user[key]);
@@ -242,28 +185,19 @@ function Profil() {
     });
 
     try {
-      const response = await axios.put(
-        "http://127.0.0.1:8000/api/user/modifier-profil/",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${localStorage.getItem('authToken')}`
-          },
-        }
-      );
+      const response = await AxiosInstance.put("/user/modifier-profil/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       setSuccessMessage("Informations mises à jour avec succès");
 
       const updatedUser = response.data.user || response.data;
 
-      // Construire l'URL complète de la photo
       let photoUrl = updatedUser.photo || user.photo;
       if (photoUrl && !photoUrl.startsWith('http')) {
-        photoUrl = `http://127.0.0.1:8000${photoUrl}`;
+        photoUrl = `${AxiosInstance.defaults.baseURL}${photoUrl}`;
       }
 
-      // Mettre à jour le state
       setUser(prev => ({
         ...prev,
         nom: updatedUser.nom || prev.nom,
@@ -278,14 +212,11 @@ function Profil() {
 
       setPreviewPhoto(photoUrl || UserAvatar);
 
-      // Mettre à jour localStorage
       localStorage.setItem('userNom', updatedUser.nom || user.nom);
       localStorage.setItem('userPrenom', updatedUser.prenom || user.prenom);
       localStorage.setItem('userEmail', updatedUser.email || user.email);
       localStorage.setItem('userPhone', updatedUser.phone || user.phone);
-      if (photoUrl) {
-        localStorage.setItem('userPhoto', photoUrl);
-      }
+      if (photoUrl) localStorage.setItem('userPhoto', photoUrl);
 
       setModalOpen(false);
       setErrorMessage("");
@@ -309,10 +240,8 @@ function Profil() {
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden dark:bg-gray-900 dark:text-white">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-          <main className="p-6">
-            <div className="flex justify-center items-center h-64">
-              <p>Chargement des données...</p>
-            </div>
+          <main className="p-6 flex justify-center items-center h-64">
+            <p>Chargement des données...</p>
           </main>
         </div>
       </div>
