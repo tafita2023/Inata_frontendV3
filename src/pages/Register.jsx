@@ -99,6 +99,13 @@ const Register = () => {
     }
   };
 
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => setErrorMessage(''), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
   return (
     <div
       className="min-h-screen bg-center bg-no-repeat flex items-center justify-center"
