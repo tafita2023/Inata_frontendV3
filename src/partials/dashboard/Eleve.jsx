@@ -31,7 +31,7 @@ function Eleve() {
 
   {/* Nombre d'étudiant */}
   <div className="flex flex-col items-center justify-center flex-1 py-6">
-    <div className="text-5xl font-bold text-gray-800 dark:text-100">
+    <div className="text-5xl font-bold text-gray-800 dark:text-white">
       120
     </div>
   </div>
