@@ -12,7 +12,7 @@ function DropdownProfile({ align }) {
   const [userNom, setUserNom] = useState('');
   const [userPrenom, setUserPrenom] = useState('');
   const [userRole, setUserRole] = useState('');
-  const [userPhoto, setUserPhoto] = useState(UserAvatar); // valeur par défaut
+  const [userPhoto, setUserPhoto] = useState(UserAvatar);
 
   const navigate = useNavigate();
   const { changeCurrentTheme } = useThemeProvider();
@@ -20,43 +20,39 @@ function DropdownProfile({ align }) {
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  // Récupérer l'image avec AxiosInstance
-  const getUserPhoto = async () => {
+  // Fonction pour récupérer les infos utilisateur depuis le backend
+  const fetchUserData = async () => {
     try {
       const response = await AxiosInstance.get("/api/utilisateur-connecte/");
-      const photo = response.data.photo;
+      const data = response.data;
 
-      // Si la photo existe et que l'URL n'est pas complète, ajouter le préfixe de base
-      if (photo && !photo.startsWith('http')) {
-        setUserPhoto(`${AxiosInstance.defaults.baseURL}${photo}`);
-      } else {
-        setUserPhoto(photo || UserAvatar);
+      setUserNom(data.nom || '');
+      setUserPrenom(data.prenom || '');
+      setUserRole(data.role || '');
+      
+      let photoUrl = data.photo;
+      if (photoUrl && !photoUrl.startsWith('http')) {
+        photoUrl = `${AxiosInstance.defaults.baseURL}${photoUrl}`;
       }
-    } catch (error) {
-      console.error('Erreur lors de la récupération de la photo:', error);
-      setUserPhoto(UserAvatar); // Utiliser l'avatar par défaut en cas d'erreur
+      setUserPhoto(photoUrl || UserAvatar);
+
+      // Mettre à jour le localStorage
+      localStorage.setItem('userNom', data.nom || '');
+      localStorage.setItem('userPrenom', data.prenom || '');
+      localStorage.setItem('userRole', data.role || '');
+      if (photoUrl) localStorage.setItem('userPhoto', photoUrl);
+
+    } catch (err) {
+      console.error("Erreur récupération utilisateur:", err);
+      setUserPhoto(UserAvatar);
     }
   };
 
   useEffect(() => {
-    const nom = localStorage.getItem('userNom');
-    const prenom = localStorage.getItem('userPrenom');
-    const role = localStorage.getItem('userRole');
-    const photo = localStorage.getItem('userPhoto');
-
-    if (nom) setUserNom(nom);
-    if (prenom) setUserPrenom(prenom);
-    if (role) setUserRole(role);
-
-    // Charger la photo de l'utilisateur avec AxiosInstance
-    if (photo) {
-      setUserPhoto(photo);
-    } else {
-      getUserPhoto(); // Récupérer l'image si elle n'est pas dans le localStorage
-    }
+    fetchUserData();
   }, []);
 
-  // Écoute les changements de localStorage
+  // Écoute les changements de localStorage pour refléter les mises à jour
   useEffect(() => {
     const handleStorageChange = () => {
       const photo = localStorage.getItem('userPhoto');
@@ -92,12 +88,7 @@ function DropdownProfile({ align }) {
     return () => document.removeEventListener('keydown', keyHandler);
   }, [dropdownOpen]);
 
-  // Formater le rôle
-  const roleMap = {
-    admin: 'Administrateur',
-    prof: 'Professeur',
-    etud: 'Étudiant',
-  };
+  const roleMap = { admin: 'Administrateur', prof: 'Professeur', etud: 'Étudiant' };
   const displayRole = roleMap[userRole] || userRole;
 
   return (
@@ -115,7 +106,7 @@ function DropdownProfile({ align }) {
           width="32"
           height="32"
           alt="User"
-          onError={(e) => { e.target.src = UserAvatar; }} // Au cas où l'image ne se charge pas
+          onError={(e) => { e.target.src = UserAvatar; }}
         />
         <div className="flex items-center truncate">
           <span className="truncate ml-2 text-sm font-medium text-gray-600 dark:text-gray-100 group-hover:text-gray-800 dark:group-hover:text-white">
