@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 // Lien pour gerer les version local et de production
-import AxiosInstanceInstance from '../../components/instance/AxiosInstanceInstance';
+import AxiosInstance from '../../components/instance/AxiosInstanceInstance';
 import AxiosInstance from "../../components/instance/AxiosInstance";
 
 export default function CalendarEvents() {
