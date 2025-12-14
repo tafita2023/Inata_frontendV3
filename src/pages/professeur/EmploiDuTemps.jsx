@@ -34,7 +34,6 @@ function EmploiDuTemps() {
 
   // Charger classes et salles
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
     AxiosInstance.get('/api/admin/classes/')
       .then(res => { setClasses(res.data); if(res.data.length>0) setSelectedClasse(res.data[0].id.toString()); });
     AxiosInstance.get('/api/admin/salle/')
@@ -44,7 +43,6 @@ function EmploiDuTemps() {
   // Charger emploi du temps
   useEffect(() => {
     if(!selectedClasse) return;
-    const token = localStorage.getItem('authToken');
     AxiosInstance.get(`/api/admin/emplois-du-temps/?classe_id=${selectedClasse}`)
       .then(res => {
         const nouvelEmploi = initializeEmptyEmploi();
