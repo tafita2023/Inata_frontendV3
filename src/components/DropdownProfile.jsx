@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Transition from '../utils/Transition';
 import { useNavigate } from "react-router-dom";
 import { useThemeProvider } from "../utils/ThemeContext";
+import AxiosInstance from "../instance/AxiosInstance"; // Import AxiosInstance
 
 import UserAvatar from '../images/user-36-07.jpg';
 
@@ -11,7 +12,7 @@ function DropdownProfile({ align }) {
   const [userNom, setUserNom] = useState('');
   const [userPrenom, setUserPrenom] = useState('');
   const [userRole, setUserRole] = useState('');
-  const [userPhoto, setUserPhoto] = useState(null);
+  const [userPhoto, setUserPhoto] = useState(UserAvatar); // valeur par défaut
 
   const navigate = useNavigate();
   const { changeCurrentTheme } = useThemeProvider();
@@ -19,40 +20,55 @@ function DropdownProfile({ align }) {
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      let photo = localStorage.getItem('userPhoto');
+  // Récupérer l'image avec AxiosInstance
+  const getUserPhoto = async () => {
+    try {
+      const response = await AxiosInstance.get("/api/utilisateur-connecte/");
+      const photo = response.data.photo;
+
+      // Si la photo existe et que l'URL n'est pas complète, ajouter le préfixe de base
       if (photo && !photo.startsWith('http')) {
-        photo = `http://127.0.0.1:8000${photo}`;
+        setUserPhoto(`${AxiosInstance.defaults.baseURL}${photo}`);
+      } else {
+        setUserPhoto(photo || UserAvatar);
       }
-      setUserPhoto(photo);
-    };
-  
-    // Pour la session courante
-    handleStorageChange();
-  
-    // Écouter les changements de localStorage (si autre onglet modifie)
-    window.addEventListener('storage', handleStorageChange);
-  
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-  
-  // Récupérer les infos stockées dans localStorage au chargement
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la photo:', error);
+      setUserPhoto(UserAvatar); // Utiliser l'avatar par défaut en cas d'erreur
+    }
+  };
+
   useEffect(() => {
     const nom = localStorage.getItem('userNom');
     const prenom = localStorage.getItem('userPrenom');
     const role = localStorage.getItem('userRole');
-    let photo = localStorage.getItem('userPhoto');
-
-    // Ajouter le préfixe backend si la photo existe et n’est pas déjà complète
-    if (photo && !photo.startsWith('http')) {
-      photo = `http://127.0.0.1:8000${photo}`;
-    }
+    const photo = localStorage.getItem('userPhoto');
 
     if (nom) setUserNom(nom);
     if (prenom) setUserPrenom(prenom);
     if (role) setUserRole(role);
-    if (photo) setUserPhoto(photo);
+
+    // Charger la photo de l'utilisateur avec AxiosInstance
+    if (photo) {
+      setUserPhoto(photo);
+    } else {
+      getUserPhoto(); // Récupérer l'image si elle n'est pas dans le localStorage
+    }
+  }, []);
+
+  // Écoute les changements de localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const photo = localStorage.getItem('userPhoto');
+      if (photo && !photo.startsWith('http')) {
+        setUserPhoto(`${AxiosInstance.defaults.baseURL}${photo}`);
+      } else {
+        setUserPhoto(photo || UserAvatar);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Fermer le dropdown si clic en dehors
@@ -99,6 +115,7 @@ function DropdownProfile({ align }) {
           width="32"
           height="32"
           alt="User"
+          onError={(e) => { e.target.src = UserAvatar; }} // Au cas où l'image ne se charge pas
         />
         <div className="flex items-center truncate">
           <span className="truncate ml-2 text-sm font-medium text-gray-600 dark:text-gray-100 group-hover:text-gray-800 dark:group-hover:text-white">
@@ -145,20 +162,15 @@ function DropdownProfile({ align }) {
                 className="font-medium text-sm text-violet-500 hover:text-violet-600 dark:hover:text-violet-400 flex items-center py-1 px-3"
                 onClick={() => {
                   setDropdownOpen(false);
-
-                  // Vider le localStorage
                   localStorage.removeItem('authToken');
                   localStorage.removeItem('userNom');
                   localStorage.removeItem('userPrenom');
                   localStorage.removeItem('userRole');
                   localStorage.removeItem('userPhoto');
-
-                  // Réinitialiser le state local
                   setUserNom('');
                   setUserPrenom('');
                   setUserRole('');
-                  setUserPhoto(null);
-
+                  setUserPhoto(UserAvatar);
                   changeCurrentTheme("light");
                   navigate("/");
                 }}
