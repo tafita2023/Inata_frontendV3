@@ -145,7 +145,7 @@ function DropdownProfile({ align }) {
                 to="/profil"
                 onClick={() => setDropdownOpen(false)}
               >
-                Paramettres
+                Profil
               </Link>
             </li>
             <li>

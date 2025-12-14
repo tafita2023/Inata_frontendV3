@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
@@ -7,6 +6,8 @@ import Banner from '../../partials/Banner';
 import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function AbsenceProfesseur() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,9 +27,7 @@ function AbsenceProfesseur() {
   // ------------------- Récupérer les données -------------------
   const fetchClasses = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await AxiosInstance.get('/api/admin/classes/');
       setClasses(response.data);
     } catch (error) {
       console.error('Erreur fetchClasses:', error);
@@ -38,9 +37,8 @@ function AbsenceProfesseur() {
   const fetchEtudiants = async (classeId) => {
     if (!classeId) return setEtudiants([]);
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/professeur/classes/${classeId}/etudiants/`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await AxiosInstance.get(
+        `/api/professeur/classes/${classeId}/etudiants/`
       );
       setEtudiants(response.data);
     } catch (error) {
@@ -51,9 +49,7 @@ function AbsenceProfesseur() {
   const fetchAbsences = async () => {
     try {
       // Utilisation de l’API spéciale pour les professeurs
-      const response = await axios.get('http://127.0.0.1:8000/api/absences/prof/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await AxiosInstance.get('/api/absences/prof/');
       setAbsences(response.data);
     } catch (error) {
       console.error('Erreur fetchAbsences:', error);
@@ -74,8 +70,8 @@ function AbsenceProfesseur() {
   const ajouterAbsence = async () => {
     if (!selectedEtudiant) return alert("Veuillez sélectionner un étudiant !");
     try {
-      await axios.post(
-        'http://127.0.0.1:8000/api/absences/',
+      await AxiosInstance.post(
+        '/api/absences/',
         { personne: selectedEtudiant },
         { headers: { Authorization: `Bearer ${token}` } }
       );

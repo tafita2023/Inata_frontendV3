@@ -4,6 +4,8 @@ import axios from 'axios';
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function NoteEtudiant() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -18,9 +20,7 @@ function NoteEtudiant() {
     const fetchMatieres = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const res = await axios.get('http://127.0.0.1:8000/api/etudiant/matieres/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await AxiosInstance.get('/api/etudiant/matieres/');
         setMatieres(res.data);
       } catch (err) {
         console.error('Erreur fetchMatieres:', err);
@@ -33,11 +33,9 @@ function NoteEtudiant() {
   const fetchNotesMatiere = async (matiereId) => {
     try {
       const token = localStorage.getItem('authToken');
-      const res = await axios.get(`http://127.0.0.1:8000/api/etudiant/notes/${matiereId}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setNotes(res.data); // [{evaluation_nom, valeur, type, semestre}]
-      setSelectedSemestre(''); // 🔹 reset filtre à l'ouverture
+      const res = await AxiosInstance.get(`/api/etudiant/notes/${matiereId}/`);
+      setNotes(res.data);
+      setSelectedSemestre('');
     } catch (err) {
       console.error('Erreur fetchNotesMatiere:', err);
     }

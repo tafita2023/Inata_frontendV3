@@ -8,6 +8,8 @@ import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
 import { loadStripe } from "@stripe/stripe-js";
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 const stripePromise = loadStripe("pk_test_51S4zL6Fea6zLnBKddrJe9f6XK1Gk90KcNMsz4s5K6iiPubvxCxBEOj5Oob7iZI3kXvAxsmtOszrSIBg5CB7OLwRV00mInpPhSF");
 
@@ -48,7 +50,7 @@ function Ecolage() {
   const fetchPaiements = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const res = await axios.get('http://localhost:8000/api/etudiant/paiements/', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await AxiosInstance.get('/api/etudiant/paiements/');
       setPaiements(res.data);
     } catch (err) {
       console.error("Erreur fetch paiements:", err);
@@ -99,20 +101,20 @@ function Ecolage() {
       // Création des frais pour tous les mois sélectionnés
       await Promise.all(
         moisNoms.map(mois => 
-          axios.post("http://127.0.0.1:8000/api/etudiant/ajouter-frais/", { mois }, 
+          AxiosInstance.post("/api/etudiant/ajouter-frais/", { mois }, 
           { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } })
         )
       );
 
       // Récupérer les frais non payés correspondant aux mois sélectionnés
-      const res = await axios.get("http://127.0.0.1:8000/api/etudiant/frais_disponibles/", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await AxiosInstance.get("/api/etudiant/frais_disponibles/", { headers: { Authorization: `Bearer ${token}` } });
       const fraisIds = res.data.filter(f => moisNoms.includes(f.mois)).map(f => f.id);
 
       if (fraisIds.length === 0) { setErrorMessage("Aucun frais disponible pour les mois sélectionnés."); setLoading(false); return; }
 
       // Créer session Stripe et rediriger
-      const stripeRes = await axios.post(
-        "http://127.0.0.1:8000/api/paiements/stripe-session/",
+      const stripeRes = await AxiosInstance.post(
+        "/api/paiements/stripe-session/",
         { frais_ids: fraisIds },
         { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
       );

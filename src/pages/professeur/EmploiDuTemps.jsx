@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Banner from '../../partials/Banner';
 import Footer from '../../partials/Footer';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function EmploiDuTemps() {
   const horaires = ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-13:00', '14:00-15:00', '15:00-16:00'];
@@ -34,9 +35,9 @@ function EmploiDuTemps() {
   // Charger classes et salles
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    axios.get('http://127.0.0.1:8000/api/admin/classes/', { headers: { Authorization: `Bearer ${token}` } })
+    AxiosInstance.get('/api/admin/classes/')
       .then(res => { setClasses(res.data); if(res.data.length>0) setSelectedClasse(res.data[0].id.toString()); });
-    axios.get('http://127.0.0.1:8000/api/admin/salle/', { headers: { Authorization: `Bearer ${token}` } })
+    AxiosInstance.get('/api/admin/salle/')
       .then(res => setSalles(res.data));
   }, []);
 
@@ -44,7 +45,7 @@ function EmploiDuTemps() {
   useEffect(() => {
     if(!selectedClasse) return;
     const token = localStorage.getItem('authToken');
-    axios.get(`http://127.0.0.1:8000/api/admin/emplois-du-temps/?classe_id=${selectedClasse}`, { headers: { Authorization: `Bearer ${token}` } })
+    AxiosInstance.get(`/api/admin/emplois-du-temps/?classe_id=${selectedClasse}`)
       .then(res => {
         const nouvelEmploi = initializeEmptyEmploi();
         let salleTrouvee = null;

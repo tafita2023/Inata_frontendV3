@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Banner from '../../partials/Banner';
 import Footer from '../../partials/Footer';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Note() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -43,9 +44,7 @@ function Note() {
     const fetchClasses = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/classes/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await AxiosInstance.get('/api/admin/classes/');
         setClasses(response.data);
         const l1 = response.data.find(c => c.niveau === "L1");
         if (l1) setSelectedClasse(l1.id.toString());
@@ -64,9 +63,7 @@ function Note() {
     const fetchMatieres = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await axios.get("http://127.0.0.1:8000/api/professeur/matieres/", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await AxiosInstance.get("/api/professeur/matieres/");
         setMatieres(res.data);
       } catch (err) {
         console.error(err);
@@ -80,9 +77,7 @@ function Note() {
     if (!selectedMatiere) return;
     try {
       const token = localStorage.getItem("authToken");
-      const res = await axios.get(`http://127.0.0.1:8000/api/professeur/evaluations/?matiere=${selectedMatiere.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await AxiosInstance.get(`/api/professeur/evaluations/?matiere=${selectedMatiere.id}`);
       setEvaluations(res.data);
     } catch (err) {
       console.error(err);
@@ -93,9 +88,8 @@ function Note() {
   const fetchNotes = async (matiereId) => {
     try {
       const token = localStorage.getItem("authToken");
-      const res = await axios.get(
-        `http://127.0.0.1:8000/api/professeur/notes/${matiereId}/etudiants/`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await AxiosInstance.get(
+        `/api/professeur/notes/${matiereId}/etudiants/`
       );
       setNotes(res.data);
     } catch (err) {
@@ -138,13 +132,9 @@ function Note() {
       };
 
       if (selectedNote) {
-        await axios.put(`http://127.0.0.1:8000/api/professeur/notes/${selectedNote.id}/`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await AxiosInstance.put(`/api/professeur/notes/${selectedNote.id}/`, payload);
       } else {
-        await axios.post(`http://127.0.0.1:8000/api/professeur/notes/`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await AxiosInstance.post(`/api/professeur/notes/`, payload);
       }
 
       fetchNotes(selectedMatiere.id);
@@ -163,9 +153,7 @@ function Note() {
   
     try {
       const token = localStorage.getItem("authToken");
-      await axios.delete(`http://127.0.0.1:8000/api/professeur/notes/${note.id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await AxiosInstance.delete(`/api/professeur/notes/${note.id}/`);
   
       // Rafraîchir les notes comme pour l'ajout/modification
       fetchNotes(selectedMatiere.id);
@@ -187,10 +175,9 @@ function Note() {
         type: newEvalType
       };
 
-      await axios.post(
-        "http://127.0.0.1:8000/api/professeur/evaluations/",
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+      await AxiosInstance.post(
+        "/api/professeur/evaluations/",
+        payload
       );
 
       fetchEvaluations();
@@ -215,15 +202,13 @@ function Note() {
   const handleUpdateEvaluation = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/professeur/evaluations/${selectedEvaluation.id}/`,
+      const response = await AxiosInstance.put(
+        `/api/professeur/evaluations/${selectedEvaluation.id}/`,
         {
           nom: editEvalNom,
           semestre: editEvalSemestre,
           matiere: selectedMatiere.id,
-          // ajoute "type" seulement si ton modèle contient ce champ
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
   
       // ✅ Met à jour directement dans le state
@@ -248,9 +233,8 @@ function Note() {
   
     try {
       const token = localStorage.getItem("authToken");
-      await axios.delete(
-        `http://127.0.0.1:8000/api/professeur/evaluations/${evaluationId}/`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      await AxiosInstance.delete(
+        `/api/professeur/evaluations/${evaluationId}/`
       );
   
       // ✅ Supprimer localement pour mise à jour immédiate

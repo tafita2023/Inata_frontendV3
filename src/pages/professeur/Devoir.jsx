@@ -6,6 +6,8 @@ import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Devoir() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,9 +40,7 @@ function Devoir() {
     const fetchClasses = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await axios.get("http://127.0.0.1:8000/api/admin/classes/", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await AxiosInstance.get("/api/admin/classes/");
         setClasses(res.data);
         if (res.data.length) setSelectedClasseTable(res.data[0].id);
       } catch (err) {
@@ -70,9 +70,7 @@ function Devoir() {
     const fetchMatieres = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await axios.get("http://127.0.0.1:8000/api/professeur/matieres/", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await AxiosInstance.get("/api/professeur/matieres/");
         setMatiereProf(res.data);
       } catch (err) {
         console.error(err);
@@ -116,9 +114,8 @@ function Devoir() {
     if (!selectedClasseTable) return;
     try {
       const token = localStorage.getItem("authToken");
-      const res = await axios.get(
-        `http://127.0.0.1:8000/api/professeur/devoirs/?classe=${selectedClasseTable}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await AxiosInstance.get(
+        `/api/professeur/devoirs/?classe=${selectedClasseTable}`
       );
       setDevoirs(res.data);
     } catch (err) {
@@ -174,15 +171,15 @@ function Devoir() {
       if (fichier) formData.append("fichier", fichier);
 
       if (selectedDevoir) {
-        await axios.put(
-          `http://127.0.0.1:8000/api/professeur/devoirs/${selectedDevoir.id}/`,
+        await AxiosInstance.put(
+          `/api/professeur/devoirs/${selectedDevoir.id}/`,
           formData,
           { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
         );
         setSuccessMessage("Devoir modifié avec succès !");
       } else {
-        await axios.post(
-          `http://127.0.0.1:8000/api/professeur/devoirs/`,
+        await AxiosInstance.post(
+          `/api/professeur/devoirs/`,
           formData,
           { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
         );
@@ -212,10 +209,9 @@ function Devoir() {
       const cleanFilename = filename.split('/').pop();
   
       const response = await fetch(
-        `http://127.0.0.1:8000/api/professeur/telecharger/${cleanFilename}`,
+        `/api/professeur/telecharger/${cleanFilename}`,
         { // ❌ pas de / final
           method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
   

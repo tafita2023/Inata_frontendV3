@@ -6,6 +6,8 @@ import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function Devoir() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,10 +35,8 @@ function Devoir() {
     const fetchDevoirsEtudiant = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const res = await axios.get(
-          'http://127.0.0.1:8000/api/etudiant/devoirs/', // endpoint spécifique étudiant
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await AxiosInstance.get(
+          '/api/etudiant/devoirs/');
         setDevoirs(res.data);
       } catch (err) {
         console.error(err);
@@ -54,10 +54,9 @@ function Devoir() {
       const cleanFilename = filename.split('/').pop();
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/professeur/telecharger/${cleanFilename}`,
+        `/api/professeur/telecharger/${cleanFilename}`,
         {
           method: 'GET',
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
 

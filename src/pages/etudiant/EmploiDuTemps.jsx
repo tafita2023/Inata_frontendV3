@@ -6,6 +6,8 @@ import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
 import ErrorMessage from '../../components/status/Error';
 import SuccessMessage from '../../components/status/Success';
+// Lien pour gerer les version local et de production
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 function EmploiDuTempsEtudiant() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -83,9 +85,7 @@ function EmploiDuTempsEtudiant() {
     const fetchEtudiant = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const res = await axios.get('http://127.0.0.1:8000/api/etudiant/info/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await AxiosInstance.get('/api/etudiant/info/');
         setEtudiant(res.data);
         setClasseNom(res.data.classe_nom || '');
       } catch (err) {
@@ -105,9 +105,7 @@ function EmploiDuTempsEtudiant() {
     const fetchEmploi = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const res = await axios.get(`http://127.0.0.1:8000/api/etudiant/emplois-du-temps/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await AxiosInstance.get(`/api/etudiant/emplois-du-temps/`);
         
         // Adapter les données au format attendu par le frontend
         const emploiData = res.data.emploi_du_temps;
