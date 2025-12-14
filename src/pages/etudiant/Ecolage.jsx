@@ -49,14 +49,79 @@ function Ecolage() {
 
   const fetchPaiements = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      console.log('🔍 Récupération des paiements depuis: /api/etudiant/paiements/');
+      
+      // Utilisez l'URL complète avec /api/
       const res = await AxiosInstance.get('/api/etudiant/paiements/');
-      setPaiements(res.data);
+      
+      console.log('✅ Réponse API:', {
+        status: res.status,
+        data: res.data,
+        count: Array.isArray(res.data) ? res.data.length : 'inconnu'
+      });
+      
+      // Debug: affichez les données brutes
+      if (res.data) {
+        console.log('📋 Données brutes reçues:', JSON.stringify(res.data, null, 2));
+      }
+      
+      // Traitement selon différents formats possibles
+      let paiementsData = [];
+      
+      if (Array.isArray(res.data)) {
+        // Format 1: Tableau direct
+        paiementsData = res.data;
+        console.log(`📊 Format tableau: ${paiementsData.length} paiements`);
+      } else if (res.data && res.data.results) {
+        // Format 2: Pagination Django REST
+        paiementsData = res.data.results;
+        console.log(`📊 Format paginé: ${paiementsData.length} paiements`);
+      } else if (res.data && res.data.paiements) {
+        // Format 3: Votre format personnalisé
+        paiementsData = res.data.paiements;
+        console.log(`📊 Format personnalisé: ${paiementsData.length} paiements`);
+      } else {
+        console.warn('⚠ Format inconnu, tentative avec données directes');
+        paiementsData = res.data || [];
+      }
+      
+      // Debug chaque paiement
+      console.log('📝 Détail des paiements:');
+      paiementsData.forEach((p, i) => {
+        console.log(`  ${i+1}. ID: ${p.id}, Statut: "${p.statut}", Montant: ${p.montant_total}, Date: ${p.date_creation}`);
+        if (p.frais_mensuels && Array.isArray(p.frais_mensuels)) {
+          console.log(`     Frais: ${p.frais_mensuels.map(f => f.mois).join(', ')}`);
+        }
+      });
+      
+      setPaiements(paiementsData);
+      
     } catch (err) {
-      console.error("Erreur fetch paiements:", err);
-      setErrorMessage('Impossible de charger les paiements');
+      console.error("❌ Erreur complète fetchPaiements:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        url: err.config?.url,
+        fullUrl: `${AxiosInstance.defaults.baseURL || ''}/api/etudiant/paiements/`
+      });
+      
+      // Message d'erreur plus précis
+      if (err.response) {
+        if (err.response.status === 404) {
+          setErrorMessage('Endpoint non trouvé. URL: /api/etudiant/paiements/');
+        } else if (err.response.status === 401) {
+          setErrorMessage('Non authentifié. Veuillez vous reconnecter.');
+        } else {
+          setErrorMessage(`Erreur serveur (${err.response.status}): ${err.response.data?.detail || 'Erreur inconnue'}`);
+        }
+      } else if (err.request) {
+        setErrorMessage('Pas de réponse du serveur. Vérifiez votre connexion.');
+      } else {
+        setErrorMessage(`Erreur: ${err.message}`);
+      }
     }
   };
+    
   useEffect(() => { fetchPaiements(); }, []);
 
   // 🔹 Récupérer les mois déjà payés
