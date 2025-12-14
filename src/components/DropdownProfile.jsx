@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Transition from '../utils/Transition';
 import { useNavigate } from "react-router-dom";
 import { useThemeProvider } from "../utils/ThemeContext";
-import AxiosInstance from "instance/AxiosInstance"; // Import AxiosInstance
+import AxiosInstance from "./instance/AxiosInstance"; // Import AxiosInstance
 
 import UserAvatar from '../images/user-36-07.jpg';
 
