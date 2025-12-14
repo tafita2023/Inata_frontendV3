@@ -44,7 +44,7 @@ const Cursus = () => {
 };
 
 // Composant pour la version desktop améliorée
-const DesktopVerticalDiagram = () => {
+const DesktopDiagram = () => {
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8">
       {/* Ligne verticale centrale */}
