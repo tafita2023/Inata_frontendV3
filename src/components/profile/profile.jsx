@@ -90,7 +90,7 @@ function Profil() {
         setPreviewPhoto(photo || UserAvatar);
 
         // API
-        const response = await AxiosInstance.get("/utilisateur-connecte/");
+        const response = await AxiosInstance.get("/api/utilisateur-connecte/");
         const userData = response.data;
 
         // Construire URL complète photo
@@ -263,71 +263,71 @@ function Profil() {
 
           {/* --- CARD PROFIL --- */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
-  {/* TITRE */}
-  <div className="text-center mb-6">
-    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Mes informations</h2>
-    <hr className="mt-4 mb-6 border-gray-300 dark:border-gray-600" />
-  </div>
+          {/* TITRE */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Mes informations</h2>
+            <hr className="mt-4 mb-6 border-gray-300 dark:border-gray-600" />
+          </div>
 
-  {/* PHOTO + INFOS */}
-  <div className="flex flex-col md:flex-row gap-10 items-center md:items-start">
-    {/* PHOTO */}
-    <div className="flex flex-col items-center relative">
-      <img
-        src={previewPhoto || UserAvatar}
-        alt="Profil"
-        className="w-56 h-56 rounded-full object-cover border-4 border-gray-300 dark:border-gray-700"
-        onError={(e) => { e.target.src = UserAvatar; }}
-      />
-      <label className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700
-                        text-white w-10 h-10 rounded-full flex items-center justify-center
-                        cursor-pointer shadow-lg">
-        <input type="file" className="hidden" onChange={handlePhotoChange} accept="image/*" />
-        <svg className="w-6 h-6 text-white"
-             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M4 18V8a1 1 0 0 1 1-1h1.5l1.707-1.707A1 1 0 0 1 8.914 5h6.172a1 1 0 0 1 .707.293L17.5 7H19a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-        </svg>
-      </label>
-    </div>
+          {/* PHOTO + INFOS */}
+          <div className="flex flex-col md:flex-row gap-10 items-center md:items-start">
+            {/* PHOTO */}
+            <div className="flex flex-col items-center relative">
+              <img
+                src={previewPhoto || UserAvatar}
+                alt="Profil"
+                className="w-56 h-56 rounded-full object-cover border-4 border-gray-300 dark:border-gray-700"
+                onError={(e) => { e.target.src = UserAvatar; }}
+              />
+              <label className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700
+                                text-white w-10 h-10 rounded-full flex items-center justify-center
+                                cursor-pointer shadow-lg">
+                <input type="file" className="hidden" onChange={handlePhotoChange} accept="image/*" />
+                <svg className="w-6 h-6 text-white"
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M4 18V8a1 1 0 0 1 1-1h1.5l1.707-1.707A1 1 0 0 1 8.914 5h6.172a1 1 0 0 1 .707.293L17.5 7H19a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                </svg>
+              </label>
+            </div>
 
-    {/* INFOS */}
-    <div className="text-lg space-y-5 flex-1">
-      <p className="flex"><span className="font-semibold w-28">Nom :</span> {user.nom}</p>
-      <p className="flex"><span className="font-semibold w-28">Prénom :</span> {user.prenom}</p>
-      <p className="flex"><span className="font-semibold w-28">Email :</span> {user.email}</p>
-      <p className="flex"><span className="font-semibold w-28">Téléphone :</span> {formatPhone(user.phone)}</p>
-      <p className="flex"><span className="font-semibold w-28">Rôle :</span> {
-        { admin: "Administrateur", prof: "Professeur", etud: "Étudiant" }[user.role] || user.role
-      }</p>
-    </div>
-  </div>
+            {/* INFOS */}
+            <div className="text-lg space-y-5 flex-1">
+              <p className="flex"><span className="font-semibold w-28">Nom :</span> {user.nom}</p>
+              <p className="flex"><span className="font-semibold w-28">Prénom :</span> {user.prenom}</p>
+              <p className="flex"><span className="font-semibold w-28">Email :</span> {user.email}</p>
+              <p className="flex"><span className="font-semibold w-28">Téléphone :</span> {formatPhone(user.phone)}</p>
+              <p className="flex"><span className="font-semibold w-28">Rôle :</span> {
+                { admin: "Administrateur", prof: "Professeur", etud: "Étudiant" }[user.role] || user.role
+              }</p>
+            </div>
+          </div>
 
-  {/* BOUTON MODIFIER */}
-  <div className="mt-6 flex justify-center md:justify-end">
-    <button
-      onClick={() => setModalOpen(true)}
-      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
-    >
-      <svg
-        className="w-6 h-6"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
-      </svg>
-      Modifier
-    </button>
-  </div>
-</div>
+          {/* BOUTON MODIFIER */}
+          <div className="mt-6 flex justify-center md:justify-end">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
+            >
+              <svg
+                className="w-6 h-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+              </svg>
+              Modifier
+            </button>
+          </div>
+        </div>
         </main>
 
         <Footer />
