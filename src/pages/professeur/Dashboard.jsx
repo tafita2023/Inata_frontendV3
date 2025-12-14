@@ -6,6 +6,8 @@ import Footer from '../../partials/Footer';
 import Calendar from '../../partials/dashboard/Agenda';
 import Eleve from '../../partials/dashboard/Eleve';
 import Task from '../../partials/dashboard/Task';
+import Devoir from '../../partials/dashboard/Devoir';
+import Matiere from '../../partials/dashboard/Matieres';
 
 import Banner from '../../partials/Banner';
 import PopupMessage from '../../components/PopupMessage';
@@ -60,9 +62,8 @@ function Dashboard() {
             </div>
 
             <div className="grid grid-cols-12 gap-6">
-              <Eleve />
-              <Eleve />
-              <Eleve />
+              <Devoir />
+              <Matiere />
               <Calendar />
               <Task />
             </div>
