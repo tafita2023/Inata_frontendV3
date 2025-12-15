@@ -3,7 +3,7 @@ import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
 
-import Calendar from '../../partials/dashboard/Agenda';
+import Calendar from '../../partials/dashboard/Calendar';
 import Eleve from '../../partials/dashboard/Eleve';
 import Task from '../../partials/dashboard/Task';
 import Devoir from '../../partials/dashboard/Devoir';
