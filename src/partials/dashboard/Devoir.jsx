@@ -6,7 +6,7 @@ function Devoir() {
 <div className="flex flex-col col-span-full sm:col-span-6 xl:col-span-6 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
   <div className="px-5 pt-5">
     <h2 className="text-center font-semibold text-gray-800 dark:text-gray-100 mb-2">
-      Nombre d devoir
+      Nombre de devoir
     </h2>
   </div>
 
