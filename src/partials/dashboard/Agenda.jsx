@@ -96,8 +96,11 @@ export default function Agenda() {
 
   // ✅ COMPARAISON DE DATE CORRIGÉE (ANTI TIMEZONE)
   const isEventOnDay = (date) => {
-    const day = toYMD(date); // format YYYY-MM-DD
-    return events.filter(e => day >= e.date_debut && day <= e.date_fin);
+    return events.filter((e) => {
+      const start = new Date(e.date_debut);
+      const end = new Date(e.date_fin);
+      return date >= start && date <= end;
+    });
   };
     
   return (
