@@ -35,12 +35,16 @@ export default function Calendar() {
     setShowPopup(true);
   };
 
+  const formatYMD = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  }
+  
   // Vérifie si un événement tombe sur une date
   const hasEvent = (date) => {
-    const day = date.toISOString().split("T")[0];
+    const day = formatYMD(date);
     return events.some(e => day >= e.date_debut && day <= e.date_fin);
   };
-
+  
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-gray-800 shadow-xs rounded-xl relative">
       <div className="px-5 py-4 dark:border-gray-700">
