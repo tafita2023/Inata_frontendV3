@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import AxiosInstance from '../../components/instance/AxiosInstance';
 
-export default function CalendarEvents() {
+export default function Calendar() {
   const today = new Date();
   const [current, setCurrent] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [events, setEvents] = useState([]);
