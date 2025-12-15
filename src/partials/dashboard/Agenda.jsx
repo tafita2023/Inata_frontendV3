@@ -1,14 +1,16 @@
 import React, { useMemo, useState, useEffect } from "react";
 // Lien pour gerer les version local et de production
-import AxiosInstance from "../../components/instance/AxiosInstance";
+import AxiosInstance from '../../components/instance/AxiosInstance';
 
 export default function CalendarEvents() {
   const today = new Date();
   const [current, setCurrent] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [showPopup, setShowPopup] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedDayEvents, setSelectedDayEvents] = useState([]);
+  const [eventMotif, setEventMotif] = useState("");
+  const [eventEndDate, setEventEndDate] = useState("");
   const [events, setEvents] = useState([]);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   const monthLabel = current.toLocaleDateString(undefined, { month: "long", year: "numeric" });
   const days = useMemo(() => buildMonthGrid(current), [current]);
@@ -28,14 +30,64 @@ export default function CalendarEvents() {
 
   // Clic sur un jour
   const handleDayClick = (date) => {
+    const dayEvents = isEventOnDay(date);
+    const event = dayEvents.length > 0 ? dayEvents[0] : null;
+
     setSelectedDate(date);
-    const dayEvents = events.filter((e) => {
-      const start = new Date(e.date_debut);
-      const end = new Date(e.date_fin);
-      return date >= start && date <= end;
-    });
-    setSelectedDayEvents(dayEvents);
+    setEditingEvent(event);
+
+    if (event) {
+      setEventMotif(event.motif);
+      setEventEndDate(event.date_fin);
+    } else {
+      setEventMotif("");
+      setEventEndDate("");
+    }
+
     setShowPopup(true);
+  };
+
+  // Ajouter un événement
+  const handleAddEvent = async () => {
+    if (!eventMotif.trim()) return;
+
+    try {
+      const res = await AxiosInstance.post("/api/evenements/", {
+        motif: eventMotif,
+        date_debut: selectedDate.toISOString().split("T")[0],
+        date_fin: eventEndDate || selectedDate.toISOString().split("T")[0],
+      });
+
+      setEvents([...events, res.data]);
+      setShowPopup(false);
+      alert("Evenement ajouté avec succès !");
+    } catch (err) {
+      console.error(err);
+      alert("Échec de l'ajout de l'événement !");
+    }
+  };
+
+  // Modifier un événement existant
+  const handleUpdateEvent = async () => {
+    if (!eventMotif.trim()) return;
+
+    try {
+      const res = await AxiosInstance.put(
+        `/api/evenements/${editingEvent.id}/`,
+        {
+          motif: eventMotif,
+          date_debut: editingEvent.date_debut,
+          date_fin: eventEndDate || editingEvent.date_debut,
+        }
+      );
+
+      setEvents(events.map(e => e.id === editingEvent.id ? res.data : e));
+      setShowPopup(false);
+      alert("Evenement modifié avec succès !");
+    } catch (err) {
+      console.error(err);
+      alert("Échec de la modification !");
+    }
   };
 
   // Vérifie si un événement tombe sur une date
@@ -50,6 +102,7 @@ export default function CalendarEvents() {
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-gray-800 shadow-xs rounded-xl relative">
       <div className="px-5 py-4 dark:border-gray-700">
+
         {/* Navigation mois */}
         <div className="flex items-center justify-between">
           <button
@@ -58,7 +111,9 @@ export default function CalendarEvents() {
           >
             ◀
           </button>
-          <div className="text-lg font-semibold capitalize text-gray-800 dark:text-gray-100">{monthLabel}</div>
+          <div className="text-lg font-semibold capitalize text-gray-800 dark:text-gray-100">
+            {monthLabel}
+          </div>
           <button
             className="rounded-xl border px-3 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600"
             onClick={() => setCurrent((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))}
@@ -79,9 +134,8 @@ export default function CalendarEvents() {
         {/* Grille des jours */}
         <div className="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-800">
           {days.map((d, idx) => {
-            const dayEvents = isEventOnDay(d.date);
+            const hasEvent = isEventOnDay(d.date).length > 0;
             const isToday = sameDay(d.date, today);
-            const hasEvent = dayEvents.length > 0;
 
             return (
               <button
@@ -103,14 +157,10 @@ export default function CalendarEvents() {
                     {d.date.getDate()}
                   </span>
 
-                  {/* SVG ruban rouge si événement */}
                   {hasEvent && (
                     <svg
                       className="absolute top-0 right-0 w-6 h-6 text-red-500"
-                      aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -126,31 +176,53 @@ export default function CalendarEvents() {
 
       {/* Popup */}
       {showPopup && (
-        <div className="fixed inset-0 backdrop-blur-none bg-white/50 dark:bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/50 dark:bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 shadow-lg">
             <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">
-              Événements du {selectedDate?.toLocaleDateString()}
+              {editingEvent ? "Modifier l’événement" : "Ajouter un événement"}
             </h3>
 
-            {selectedDayEvents.length > 0 ? (
-              <ul className="max-h-40 overflow-auto border p-2 rounded dark:border-gray-700">
-                {selectedDayEvents.map((e, i) => (
-                  <li key={i} className="text-gray-800 dark:text-gray-100 text-sm mb-1">
-                    • {e.motif} ({new Date(e.date_debut).toLocaleDateString()} → {new Date(e.date_fin).toLocaleDateString()})
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-300">Aucun événement ce jour.</p>
-            )}
+            <textarea
+              placeholder="Motif"
+              value={eventMotif}
+              onChange={(e) => setEventMotif(e.target.value)}
+              className="w-full p-2 border rounded mb-4 dark:bg-gray-900 dark:text-white"
+              rows="3"
+            />
 
-            <div className="flex justify-end mt-4">
+            <label className="block mb-2 text-gray-700 dark:text-gray-300">
+              Date de fin :
+            </label>
+            <input
+              type="date"
+              value={eventEndDate}
+              onChange={(e) => setEventEndDate(e.target.value)}
+              className="w-full p-2 border rounded mb-4 dark:bg-gray-900 dark:text-white"
+            />
+
+            <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowPopup(false)}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
               >
-                Fermer
+                Annuler
               </button>
+
+              {editingEvent ? (
+                <button
+                  onClick={handleUpdateEvent}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                >
+                  Modifier
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddEvent}
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+                >
+                  Ajouter
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -159,7 +231,7 @@ export default function CalendarEvents() {
   );
 }
 
-// Helpers
+/* Helpers */
 function buildMonthGrid(anchorDate) {
   const year = anchorDate.getFullYear();
   const month = anchorDate.getMonth();
@@ -169,8 +241,7 @@ function buildMonthGrid(anchorDate) {
   const days = [];
 
   for (let i = startDay - 1; i >= 0; i--) {
-    const d = new Date(year, month, -i);
-    days.push({ date: d, inMonth: false });
+    days.push({ date: new Date(year, month, -i), inMonth: false });
   }
 
   for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
@@ -178,13 +249,16 @@ function buildMonthGrid(anchorDate) {
   }
 
   while (days.length % 7 !== 0) {
-    const nextDay = new Date(year, month + 1, days.length - lastDayOfMonth.getDate() - startDay + 1);
-    days.push({ date: nextDay, inMonth: false });
+    days.push({ date: new Date(year, month + 1, days.length), inMonth: false });
   }
 
   return days;
 }
 
 function sameDay(a, b) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
