@@ -28,7 +28,7 @@ export default function CalendarEvents() {
     fetchEvents();
   }, []);
 
-  // Clic sur un jour
+  // 📅 Clic sur un jour
   const handleDayClick = (date) => {
     const dayEvents = isEventOnDay(date);
     const event = dayEvents.length > 0 ? dayEvents[0] : null;
@@ -37,8 +37,12 @@ export default function CalendarEvents() {
     setEditingEvent(event);
 
     if (event) {
-      setEventMotif(event.motif);
-      setEventEndDate(event.date_fin);
+      setEventMotif(event.motif || "");
+      setEventEndDate(
+        event.date_fin
+          ? event.date_fin.split("T")[0]
+          : event.date_debut.split("T")[0]
+      );
     } else {
       setEventMotif("");
       setEventEndDate("");
@@ -47,15 +51,15 @@ export default function CalendarEvents() {
     setShowPopup(true);
   };
 
-  // Ajouter un événement
+  // ➕ Ajouter un événement
   const handleAddEvent = async () => {
     if (!eventMotif.trim()) return;
 
     try {
       const res = await AxiosInstance.post("/api/evenements/", {
         motif: eventMotif,
-        date_debut: selectedDate.toISOString().split("T")[0],
-        date_fin: eventEndDate || selectedDate.toISOString().split("T")[0],
+        date_debut: toYMD(selectedDate),
+        date_fin: eventEndDate || toYMD(selectedDate),
       });
 
       setEvents([...events, res.data]);
@@ -67,7 +71,7 @@ export default function CalendarEvents() {
     }
   };
 
-  // Modifier un événement existant
+  // ✏️ Modifier un événement
   const handleUpdateEvent = async () => {
     if (!eventMotif.trim()) return;
 
@@ -90,12 +94,12 @@ export default function CalendarEvents() {
     }
   };
 
-  // Vérifie si un événement tombe sur une date
+  // ✅ COMPARAISON DE DATE CORRIGÉE (ANTI TIMEZONE)
   const isEventOnDay = (date) => {
+    const day = toYMD(date);
+
     return events.filter((e) => {
-      const start = new Date(e.date_debut);
-      const end = new Date(e.date_fin);
-      return date >= start && date <= end;
+      return day >= e.date_debut && day <= e.date_fin;
     });
   };
 
@@ -195,7 +199,7 @@ export default function CalendarEvents() {
             </label>
             <input
               type="date"
-              value={eventEndDate}
+              value={eventEndDate || ""}
               onChange={(e) => setEventEndDate(e.target.value)}
               className="w-full p-2 border rounded mb-4 dark:bg-gray-900 dark:text-white"
             />
@@ -261,4 +265,9 @@ function sameDay(a, b) {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
   );
+}
+
+// 🔧 Helper date (anti timezone)
+function toYMD(date) {
+  return date.toISOString().split("T")[0];
 }
