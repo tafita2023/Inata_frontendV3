@@ -96,19 +96,10 @@ export default function Agenda() {
 
   // ✅ COMPARAISON DE DATE CORRIGÉE (ANTI TIMEZONE)
   const isEventOnDay = (date) => {
-    return events.filter(e => {
-      const start = new Date(e.date_debut);
-      const end = new Date(e.date_fin);
-      
-      // Supprime l'heure pour éviter les décalages
-      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const s = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-      const f = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-      
-      return d >= s && d <= f;
-    });
+    const day = toYMD(date); // format YYYY-MM-DD
+    return events.filter(e => day >= e.date_debut && day <= e.date_fin);
   };
-  
+    
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-gray-800 shadow-xs rounded-xl relative">
       <div className="px-5 py-4 dark:border-gray-700">
