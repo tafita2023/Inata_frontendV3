@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../../partials/Sidebar';
 import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
-import Calendar from '../../partials/dashboard/Agenda';
+import Calendar from '../../partials/dashboard/Calendar';
 
 import Devoir from '../../partials/dashboard/Devoir';
 import Matiere from '../../partials/dashboard/Matieres';
@@ -10,7 +10,6 @@ import Matiere from '../../partials/dashboard/Matieres';
 import Banner from '../../partials/Banner';
 import PopupMessage from '../../components/PopupMessage';
 import { useLocation } from 'react-router-dom';
-import Agenda from '../../partials/dashboard/Agenda';
 
 function Dashboard({ currentUser }) {
   const location = useLocation();
@@ -76,7 +75,7 @@ function Dashboard({ currentUser }) {
 
               <Devoir />
               <Matiere />
-              <Agenda />
+              <Calendar />
             </div>
 
           </div>
