@@ -4,7 +4,7 @@ import Header from '../../partials/Header';
 import Footer from '../../partials/Footer';
 import Graphique from '../../partials/dashboard/Graphique';
 import Task from '../../partials/dashboard/Task';
-import Calendar from '../../partials/dashboard/Calendar';
+import Calendar from '../../partials/dashboard/Agenda';
 import Frais from '../../partials/dashboard/FraisScolarite';
 import Paiemment from '../../partials/dashboard/Paiement';
 import SalaireProf from '../../partials/dashboard/SalaireProf';

@@ -10,6 +10,7 @@ import Matiere from '../../partials/dashboard/Matieres';
 import Banner from '../../partials/Banner';
 import PopupMessage from '../../components/PopupMessage';
 import { useLocation } from 'react-router-dom';
+import Agenda from '../../partials/dashboard/Agenda';
 
 function Dashboard({ currentUser }) {
   const location = useLocation();
@@ -75,7 +76,7 @@ function Dashboard({ currentUser }) {
 
               <Devoir />
               <Matiere />
-              <Calendar />
+              <Agenda />
             </div>
 
           </div>
