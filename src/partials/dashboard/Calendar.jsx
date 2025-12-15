@@ -60,13 +60,14 @@ export default function CalendarEvents() {
 
   // Vérifie si un événement tombe sur une date
   const isEventOnDay = (date) => {
-    return events.filter((e) => {
-      const start = new Date(e.date_debut);
-      const end = new Date(e.date_fin);
-      return date >= start && date <= end;
+    return events.filter(e => {
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const start = new Date(e.date_debut.split('T')[0]);
+      const end = new Date(e.date_fin.split('T')[0]);
+      return d >= start && d <= end;
     });
   };
-
+  
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-gray-800 shadow-xs rounded-xl relative">
       <div className="px-5 py-4 dark:border-gray-700">
