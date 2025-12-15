@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 // Lien pour gerer les version local et de production
 import AxiosInstance from '../../components/instance/AxiosInstance';
 
-export default function CalendarEvents() {
+export default function Agenda() {
   const today = new Date();
   const [current, setCurrent] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [showPopup, setShowPopup] = useState(false);
@@ -96,13 +96,19 @@ export default function CalendarEvents() {
 
   // ✅ COMPARAISON DE DATE CORRIGÉE (ANTI TIMEZONE)
   const isEventOnDay = (date) => {
-    const day = toYMD(date);
-
-    return events.filter((e) => {
-      return day >= e.date_debut && day <= e.date_fin;
+    return events.filter(e => {
+      const start = new Date(e.date_debut);
+      const end = new Date(e.date_fin);
+      
+      // Supprime l'heure pour éviter les décalages
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const s = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const f = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      
+      return d >= s && d <= f;
     });
   };
-
+  
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-gray-800 shadow-xs rounded-xl relative">
       <div className="px-5 py-4 dark:border-gray-700">
